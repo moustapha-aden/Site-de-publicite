@@ -26,6 +26,7 @@ return new class extends Migration
             $table->json('photos')->nullable();
             $table->boolean('is_featured')->default(false);
             $table->boolean('is_new')->default(true);
+            $table->string('contact_number')->nullable();
         });
     }
 

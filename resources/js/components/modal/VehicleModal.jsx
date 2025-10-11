@@ -114,6 +114,24 @@ const VehicleModal = ({
                             </select>
                             {formErrors.transmission && <p className="text-xs text-red-600 mt-1">{formErrors.transmission[0]}</p>}
                         </div>
+                        {/* Numéro de contact */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Numéro de contact
+                            </label>
+                            <input
+                                type="tel"
+                                name="contact_number"
+                                value={formData.contact_number || ''}
+                                onChange={handleChange}
+                                placeholder="+253xxxxxxxx"
+                                className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                required
+                            />
+                            {formErrors.contact_number && (
+                                <p className="text-xs text-red-600 mt-1">{formErrors.contact_number[0]}</p>
+                            )}
+                        </div>
 
                         {/* Couleur */}
                         <div>
@@ -128,6 +146,7 @@ const VehicleModal = ({
                             <textarea name="description" value={formData.description} onChange={handleChange} rows={3} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
                             {formErrors.description && <p className="text-xs text-red-600 mt-1">{formErrors.description[0]}</p>}
                         </div>
+
 
                         {/* AJOUT: Champ Photos du véhicule (multi-colonnes) */}
                         <div className="md:col-span-2">

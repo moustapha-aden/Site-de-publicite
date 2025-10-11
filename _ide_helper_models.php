@@ -13,12 +13,20 @@
 
 namespace App\Models{
 /**
+ * @property int $id
+ * @property string $name
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Vehicule> $vehicules
  * @property-read int|null $vehicules_count
  * @method static \Database\Factories\BrandFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Brand newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Brand newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Brand query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Brand whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Brand whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Brand whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Brand whereUpdatedAt($value)
  */
 	class Brand extends \Eloquent {}
 }
@@ -86,6 +94,7 @@ namespace App\Models{
  * @property array<array-key, mixed>|null $photos
  * @property bool $is_featured
  * @property bool $is_new
+ * @property-read string|null $formatted_contact
  * @property-read string $formatted_price
  * @property-read string $full_name
  * @property-read array $photo_urls

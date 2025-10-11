@@ -1,33 +1,20 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import {
-    Users,
-    Car,
-    BarChart3,
-    Settings,
-    Plus,
-    Edit,
-    Trash2,
-    Eye,
-    LogOut,
-    Loader2,
-    Tag // 1. ⚠️ Ajout de l'icône Tag pour les marques
+    Users, Car, BarChart3, Settings, Plus, Edit, Trash2, Eye, LogOut, Loader2, Tag
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-
-// 2. ⚠️ Import du composant de gestion des marques
+import DetailModal from './modal/DetailModal';
+import VehicleModal from './modal/VehicleModal';
 import BrandManagement from './BrandManagement';
+import Pagination from './commun/Pagination'; // Assurez-vous que ce fichier existe
 import { API_URL } from '../api';
 
 // --- Composants Réutilisables ---
-
-// StatCard réutilisé (inchangé)
 const StatCard = ({ icon: Icon, title, value, color, description }) => (
     <div className="bg-white p-6 rounded-lg shadow-sm border">
         <div className="flex items-center">
             <div className="flex-shrink-0">
-                {/* NOTE: Les classes Tailwind dynamiques comme 'text-${color}-600' doivent être définies explicitement
-                    dans un fichier de configuration pour fonctionner correctement dans une application React */}
                 <Icon className={`h-8 w-8 text-${color}-600`} />
             </div>
             <div className="ml-4">
@@ -39,117 +26,290 @@ const StatCard = ({ icon: Icon, title, value, color, description }) => (
     </div>
 );
 
+const getStatusColor = (status) => {
+    switch (status) {
+        case 'Disponible': return 'bg-green-100 text-green-800';
+        case 'Vendu': return 'bg-blue-100 text-blue-800';
+        case 'Réservé': return 'bg-yellow-100 text-yellow-800';
+        default: return 'bg-gray-100 text-gray-800';
+    }
+};
+
+const formatPrice = (price) => {
+    if (price === undefined || price === null) return 'N/A';
+    return `€${Number(price).toLocaleString('fr-FR')}`;
+};
+
 // --- Composant Principal Admin ---
-
 export default function Admin() {
-    // 3. ⚠️ Récupération du token
     const { user, logout, token } = useAuth();
-    const [activeTab, setActiveTab] = useState('dashboard');
+    const API_BASE_URL = API_URL;
 
+    // --- États du composant ---
+    const [activeTab, setActiveTab] = useState('dashboard');
     const [dashboardStats, setDashboardStats] = useState([]);
     const [vehicles, setVehicles] = useState([]);
+    const [brands, setBrands] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [brandsError, setBrandsError] = useState(null); // Ajout pour gérer les erreurs de brands séparément
+    const [filterOptions, setFilterOptions] = useState({ brands: [], fuel_types: [], transmission_types: [] });
 
-    // URL de base de votre API Laravel
-    const API_BASE_URL=API_URL;
+    // --- États de pagination ---
+    const [pagination, setPagination] = useState({
+        current_page: 1,
+        last_page: 1,
+        per_page: 10,
+        total: 0,
+    });
 
-    // 1. Fonction de chargement des statistiques du Dashboard
+    // --- États des Modales de Véhicule ---
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [showDetail, setShowDetail] = useState(false);
+    const [modalMode, setModalMode] = useState('create'); // 'create' ou 'edit'
+    const [selectedVehicle, setSelectedVehicle] = useState(null);
+    const [formData, setFormData] = useState({});
+    const [formSubmitting, setFormSubmitting] = useState(false);
+    const [formErrors, setFormErrors] = useState({});
+
+    // --- Fonctions de Récupération des Données ---
+    const fetchBrands = useCallback(async () => {
+        try {
+            const response = await axios.get(`${API_BASE_URL}/brand`, {
+                headers: { 'Authorization': `Bearer ${token}` },
+            });
+            // Correction : vérifier la structure de réponse comme dans Vehicles.jsx
+            if (response.data.success) {
+                setBrands(response.data.data || []);
+            } else {
+                throw new Error(response.data.message || 'Erreur lors du chargement des marques');
+            }
+        } catch (err) {
+            console.error("Erreur de chargement des marques:", err);
+            setBrandsError("Impossible de charger les marques.");
+        }
+    }, [API_BASE_URL, token]);
+
+    const fetchFilterOptions = useCallback(async () => {
+        try {
+            const response = await axios.get(`${API_BASE_URL}/vehicles/filter/options`, {
+                headers: { 'Authorization': `Bearer ${token}` },
+            });
+            if (response.data.success) {
+                setFilterOptions(response.data.data);
+            }
+        } catch (err) {
+            console.error("Erreur de chargement des options de filtres:", err);
+        }
+    }, [API_BASE_URL, token]);
+
     const fetchDashboardStats = useCallback(async () => {
         try {
-            const response = await axios.get(`${API_BASE_URL}/dashboard`);
+            const response = await axios.get(`${API_BASE_URL}/dashboard`, {
+                 headers: { 'Authorization': `Bearer ${token}` }
+            });
 
             const apiStats = response.data.stats;
-
-            console.log('les donnees :',apiStats);
-
             const formattedStats = [
                 { name: 'total_vehicules', value: apiStats.total_vehicules?.toLocaleString() || '0', icon: Car, color: 'indigo' },
-                // Vous pouvez ajouter d'autres stats ici
             ];
-
             setDashboardStats(formattedStats);
         } catch (err) {
             console.error("Erreur de chargement des stats:", err);
             setError("Impossible de charger les statistiques.");
         }
-    }, [API_BASE_URL]); // Ajout de API_BASE_URL dans les dépendances pour useCallback
+    }, [API_BASE_URL, token]);
 
-
-    // 2. Fonction de chargement des Véhicules
-    const fetchVehicles = useCallback(async () => {
+    const fetchVehicles = useCallback(async (page = 1) => {
         try {
-            // Utiliser le token pour les endpoints protégés
-            const response = await axios.get(`${API_BASE_URL}/vehicles`, {
-                 headers: {
-                    'Authorization': `Bearer ${token}`,
-                },
+            const response = await axios.get(`${API_BASE_URL}/vehicles?page=${page}`, {
+                headers: { 'Authorization': `Bearer ${token}` },
             });
-            setVehicles(response.data.data || response.data);
+
+            const data = response.data.data || response.data;
+            const meta = response.data.meta || {}; // Laravel renvoie meta pour pagination
+
+            setVehicles(data);
+            setPagination({
+                current_page: meta.current_page || 1,
+                last_page: meta.last_page || 1,
+                per_page: meta.per_page || 10,
+                total: meta.total || data.length,
+            });
+
         } catch (err) {
             console.error("Erreur de chargement des véhicules:", err);
             setError("Impossible de charger la liste des véhicules.");
         }
     }, [API_BASE_URL, token]);
 
+    // --- Fonctions de Gestion des Modales/Actions ---
+    const closeVehicleModal = () => {
+        setIsModalOpen(false);
+        setSelectedVehicle(null);
+        setFormErrors({});
+        fetchVehicles(pagination.current_page);
+    };
 
-    // Effet pour charger les données lors du changement d'onglet
+    const closeDetailModal = () => {
+        setShowDetail(false);
+        setSelectedVehicle(null);
+    };
+
+    const openCreateModal = () => {
+        setModalMode('create');
+        setSelectedVehicle({});
+        setFormData({
+            brand: '', model: '', year: '', price: '', mileage: '', fuel: '',
+            transmission: '', color: '', description: '', is_featured: false,
+            is_new: false, contact_number: '',
+        });
+        setFormErrors({});
+        setIsModalOpen(true);
+    };
+
+    const openEditModal = (vehicle) => {
+        setModalMode('edit');
+        setSelectedVehicle(vehicle);
+        // Assurez-vous d'avoir les données exactes du véhicule pour l'édition
+        setFormData({
+            id: vehicle.id,
+            brand: vehicle.brand ?? '',
+            model: vehicle.model ?? '',
+            year: vehicle.year ?? '',
+            price: vehicle.price ?? '',
+            mileage: vehicle.mileage ?? '',
+            fuel: vehicle.fuel ?? '',
+            transmission: vehicle.transmission ?? '',
+            color: vehicle.color ?? '',
+            description: vehicle.description ?? '',
+            is_featured: !!vehicle.is_featured,
+            is_new: !!vehicle.is_new,
+            contact_number: vehicle.contact_number ?? '',
+        });
+        setFormErrors({});
+        setIsModalOpen(true);
+    };
+
+    const openDetailModal = (vehicle) => {
+        setSelectedVehicle(vehicle);
+        setShowDetail(true);
+    };
+
+    const submitVehicle = async (e) => {
+        e.preventDefault();
+
+        if (!token) {
+            setFormErrors({ general: ['Vous devez être connecté pour effectuer cette action.'] });
+            return;
+        }
+
+        setFormSubmitting(true);
+        setFormErrors({});
+
+        try {
+            const body = new FormData();
+
+            // 1. Ajouter les champs de texte et numériques au FormData
+            Object.entries(formData).forEach(([key, val]) => {
+                // S'assurer que les booléens sont envoyés comme des chaînes '1' ou '0'
+                if (key === 'is_featured' || key === 'is_new') {
+                    body.append(key, val ? '1' : '0');
+                } else if (val !== undefined && val !== null) {
+                    body.append(key, String(val));
+                }
+            });
+
+            // 2. GESTION DES FICHIERS : Ajouter les images au FormData (photos[])
+            if (formData.photos && formData.photos.length > 0) {
+                for (let i = 0; i < formData.photos.length; i++) {
+                    body.append('photos[]', formData.photos[i]);
+                }
+            }
+
+            // --- CORRECTION CLÉ POUR PUT/PATCH AVEC FormData ---
+            let url = `${API_BASE_URL}/vehicles`;
+            let method = 'POST'; // Doit être POST pour l'envoi de FormData (fichiers)
+
+            if (modalMode === 'edit') {
+                // Ajout du champ caché pour simuler la méthode PUT côté backend (ex: Laravel)
+                body.append('_method', 'PUT');
+                url = `${API_BASE_URL}/vehicles/${formData.id}`;
+            }
+
+            const response = await fetch(url, {
+                method: method, // Utilise POST pour l'envoi de FormData
+                headers: {
+                    'Accept': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                    // IMPORTANT: Ne pas définir 'Content-Type' pour FormData!
+                },
+                body,
+            });
+            const data = await response.json();
+
+            if (!response.ok || data.success === false) {
+                // Gère le 401/422/etc.
+                setFormErrors(data.errors || { general: [data.message || 'Erreur inconnue lors de la soumission.'] });
+                return;
+            }
+
+            alert(`Véhicule ${modalMode === 'create' ? 'ajouté' : 'modifié'} avec succès !`);
+            closeVehicleModal();
+
+        } catch (err) {
+            setFormErrors({ general: ['Erreur de connexion au serveur.'] });
+            console.error('submitVehicle error:', err);
+        } finally {
+            setFormSubmitting(false);
+        }
+    };
+
+
+// Fonction pour gérer les changements dans le formulaire
+const handleChange = (e) => {
+    const { name, type, value, checked, files } = e.target;
+
+    if (type === 'file' && name === 'images') {
+        setFormData(prev => ({ ...prev, photos: files }));
+        return;
+    }
+
+    setFormData((prev) => ({
+        ...prev,
+        [name]: type === 'checkbox' ? checked : value,
+    }));
+};
+
+
+    // --- Effet de Chargement Initial ---
     useEffect(() => {
         const loadData = async () => {
             setIsLoading(true);
             setError(null);
+            await fetchBrands();
+            await fetchFilterOptions();
 
-            // Charger les données spécifiques à l'onglet actif
             if (activeTab === 'dashboard') {
                 await fetchDashboardStats();
             } else if (activeTab === 'vehicles') {
-                await fetchVehicles();
+                await fetchVehicles(pagination.current_page);
             }
-            // L'onglet 'brands' est géré par son propre hook (BrandManagement),
-            // donc on ne fait rien ici pour 'brands' à part enlever le loader général.
 
             setIsLoading(false);
         };
 
-        // On charge les données uniquement pour les onglets qui nécessitent un chargement initial
-        if (activeTab === 'dashboard' || activeTab === 'vehicles') {
-            loadData();
-        } else {
-             setIsLoading(false);
-        }
+        loadData();
+    }, [activeTab, fetchDashboardStats, fetchVehicles, fetchBrands, fetchFilterOptions, pagination.current_page]);
 
-    }, [activeTab, fetchDashboardStats, fetchVehicles]);
-
-
-    // 4. Les onglets mis à jour AVEC 'Marques'
     const tabs = [
         { id: 'dashboard', name: 'Tableau de bord', icon: BarChart3 },
         { id: 'vehicles', name: 'Véhicules', icon: Car },
-        { id: 'brands', name: 'Marques', icon: Tag }, // NOUVEAU
+        { id: 'brands', name: 'Marques', icon: Tag },
         { id: 'users', name: 'Utilisateurs', icon: Users },
         { id: 'settings', name: 'Paramètres', icon: Settings },
     ];
 
-    const getStatusColor = (status) => {
-        switch (status) {
-            case 'Disponible': return 'bg-green-100 text-green-800';
-            case 'Vendu': return 'bg-blue-100 text-blue-800';
-            case 'Réservé': return 'bg-yellow-100 text-yellow-800';
-            default: return 'bg-gray-100 text-gray-800';
-        }
-    };
-
-    const getIconColor = (color) => {
-        const colors = {
-            blue: 'text-blue-600',
-            green: 'text-green-600',
-            purple: 'text-purple-600',
-            yellow: 'text-yellow-600',
-        };
-        return colors[color] || 'text-gray-600';
-    };
-
-    // Affichage du loader seulement si on est sur un onglet qui charge des données ici
     if (isLoading && (activeTab === 'dashboard' || activeTab === 'vehicles')) {
         return (
             <div className="flex justify-center items-center min-h-screen">
@@ -161,15 +321,11 @@ export default function Admin() {
 
     return (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            {/* Header avec informations utilisateur (inchangé) */}
+            {/* Header */}
             <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                    <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                        Administration
-                    </h1>
-                    <p className="text-gray-600">
-                        Bienvenue, **{user?.name || 'Administrateur'}**. Gérez votre plateforme.
-                    </p>
+                    <h1 className="text-3xl font-bold text-gray-900 mb-2">Administration</h1>
+                    <p className="text-gray-600">Bienvenue, <strong>{user?.name || 'Administrateur'}</strong>. Gérez votre plateforme.</p>
                 </div>
                 <div className="mt-4 sm:mt-0 flex items-center space-x-4">
                     <button
@@ -182,25 +338,13 @@ export default function Admin() {
                 </div>
             </div>
 
-            {error && <p className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">{error}</p>}
-
-
-            {/* Stats Cards DYNAMIQUES (Affichées uniquement sur l'onglet dashboard) */}
-            {activeTab === 'dashboard' && (
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                    {dashboardStats.map((stat) => (
-                        <StatCard
-                            key={stat.name}
-                            icon={stat.icon}
-                            title={stat.name}
-                            value={stat.value}
-                            color={stat.color}
-                        />
-                    ))}
+            {(error || brandsError) && (
+                <div className="mb-4 p-4 bg-red-50 border border-red-200 text-red-700 rounded">
+                    <strong>Erreur :</strong> {error || brandsError}
                 </div>
             )}
 
-            {/* Navigation Tabs (inchangé) */}
+            {/* Navigation Tabs */}
             <div className="border-b border-gray-200 mb-8">
                 <nav className="-mb-px flex space-x-8">
                     {tabs.map((tab) => {
@@ -223,144 +367,110 @@ export default function Admin() {
                 </nav>
             </div>
 
-            {/* Tab Content */}
+            {/* Tab Content: Dashboard */}
             {activeTab === 'dashboard' && (
-                <div className="bg-white rounded-lg shadow-sm border p-6">
-                    <h2 className="text-xl font-semibold mb-4">Tableau de bord</h2>
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        {/* Ventes récentes */}
-                        <div>
-                            <h3 className="text-lg font-medium mb-3">Ventes récentes</h3>
-                            <div className="space-y-3">
-                                {[1, 2, 3].map((i) => (
-                                    <div key={i} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                                        <div>
-                                            <p className="font-medium">BMW X5</p>
-                                            <p className="text-sm text-gray-600">Client: Jean Dupont</p>
-                                        </div>
-                                        <div className="text-right">
-                                            <p className="font-semibold">€45,000</p>
-                                            <p className="text-sm text-gray-600">Hier</p>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                        {/* Activité récente */}
-                        <div>
-                            <h3 className="text-lg font-medium mb-3">Activité récente</h3>
-                            <div className="space-y-3">
-                                {[
-                                    'Nouveau véhicule ajouté: Audi A6',
-                                    'Client connecté: Marie Martin',
-                                    'Véhicule vendu: BMW X5',
-                                    'Réservation annulée: Mercedes C-Class'
-                                ].map((activity, i) => (
-                                    <div key={i} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
-                                        <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
-                                        <p className="text-sm">{activity}</p>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                    {dashboardStats.map((stat) => (
+                        <StatCard
+                            key={stat.name}
+                            icon={stat.icon}
+                            title={stat.name}
+                            value={stat.value}
+                            color={stat.color}
+                        />
+                    ))}
                 </div>
             )}
 
+            {/* Tab Content: Vehicles */}
             {activeTab === 'vehicles' && (
                 <div className="bg-white rounded-lg shadow-sm border">
-                    <div className="p-6 border-b border-gray-200">
-                        <div className="flex items-center justify-between">
-                            <h2 className="text-xl font-semibold">Gestion des véhicules ({vehicles.length})</h2>
-                            <button className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-                                <Plus className="h-4 w-4" />
-                                Ajouter un véhicule
-                            </button>
-                        </div>
+                    <div className="p-6 border-b border-gray-200 flex items-center justify-between">
+                        <h2 className="text-xl font-semibold">Gestion des véhicules ({pagination.total})</h2>
+                        <button
+                            onClick={openCreateModal}
+                            className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                        >
+                            <Plus className="h-4 w-4" />
+                            Ajouter un véhicule
+                        </button>
                     </div>
                     <div className="overflow-x-auto">
                         <table className="min-w-full divide-y divide-gray-200">
                             <thead className="bg-gray-50">
                                 <tr>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Véhicule
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Prix
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Statut
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Actions
-                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Véhicule</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Prix</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
-                                {vehicles.length > 0 ? (
-                                    vehicles.map((vehicle) => (
-                                        <tr key={vehicle.id}>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <div>
-                                                    <div className="text-sm font-medium text-gray-900">
-                                                        {vehicle.brand || 'N/A'} {vehicle.model || 'N/A'}
-                                                    </div>
-                                                    <div className="text-sm text-gray-500">
-                                                        ID: {vehicle.id}
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                €{vehicle.price ? vehicle.price.toLocaleString() : '0'}
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(vehicle.status)}`}>
-                                                    {vehicle.status || 'Inconnu'}
-                                                </span>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                                <div className="flex items-center gap-2">
-                                                    <button className="text-blue-600 hover:text-blue-900"><Eye className="h-4 w-4" /></button>
-                                                    <button className="text-yellow-600 hover:text-yellow-900"><Edit className="h-4 w-4" /></button>
-                                                    <button className="text-red-600 hover:text-red-900"><Trash2 className="h-4 w-4" /></button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    ))
-                                ) : (
-                                    <tr>
-                                        <td colSpan="4" className="px-6 py-4 text-center text-gray-500">
-                                            Aucun véhicule trouvé.
+                                {vehicles.length > 0 ? vehicles.map(vehicle => (
+                                    <tr key={vehicle.id}>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <div className="text-sm font-medium text-gray-900">{vehicle.brand || 'N/A'} {vehicle.model || 'N/A'}</div>
+                                            <div className="text-sm text-gray-500">ID: {vehicle.id}</div>
                                         </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{formatPrice(vehicle.price)}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(vehicle.status)}`}>
+                                                {vehicle.status || 'Inconnu'}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                            <div className="flex items-center gap-2">
+                                                <button onClick={() => openDetailModal(vehicle)} className="text-blue-600 hover:text-blue-900"><Eye className="h-4 w-4" /></button>
+                                                <button onClick={() => openEditModal(vehicle)} className="text-yellow-600 hover:text-yellow-900"><Edit className="h-4 w-4" /></button>
+                                                <button className="text-red-600 hover:text-red-900"><Trash2 className="h-4 w-4" /></button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                )) : (
+                                    <tr>
+                                        <td colSpan="4" className="px-6 py-4 text-center text-gray-500">Aucun véhicule trouvé.</td>
                                     </tr>
                                 )}
                             </tbody>
                         </table>
                     </div>
+
+                    {/* Pagination */}
+                    {vehicles.length > 0 && (
+                        <div className="p-4">
+                            <Pagination pagination={pagination} fetchVehicles={fetchVehicles} />
+                        </div>
+                    )}
                 </div>
             )}
 
-            {/* 5. ⚠️ NOUVEL ONGLET: Gestion des Marques */}
+            {/* Tab Content: Brands */}
             {activeTab === 'brands' && (
-                <BrandManagement
-                    API_BASE_URL={API_BASE_URL}
-                    token={token}
+                <BrandManagement API_BASE_URL={API_BASE_URL} token={token} />
+            )}
+
+            {/* --- MODALES --- */}
+            {isModalOpen && (
+                <VehicleModal
+                    modalMode={modalMode}
+                    formData={formData}
+                    formErrors={formErrors}
+                    formSubmitting={formSubmitting}
+                    filterOptions={filterOptions} // Utilise les vraies options de filtres
+                    brands={brands}
+                    closeModal={closeVehicleModal}
+                    handleChange={handleChange}
+                    submitVehicle={submitVehicle}
                 />
             )}
 
-            {/* Onglets 'users' et 'settings' (inchangés) */}
-            {activeTab === 'users' && (
-                <div className="bg-white rounded-lg shadow-sm border p-6">
-                    <h2 className="text-xl font-semibold mb-4">Gestion des utilisateurs</h2>
-                    <p className="text-gray-600">Fonctionnalité en cours de développement...</p>
-                </div>
-            )}
 
-            {activeTab === 'settings' && (
-                <div className="bg-white rounded-lg shadow-sm border p-6">
-                    <h2 className="text-xl font-semibold mb-4">Paramètres</h2>
-                    <p className="text-gray-600">Fonctionnalité en cours de développement...</p>
-                </div>
+            {showDetail && selectedVehicle && (
+                <DetailModal
+                    vehicule={selectedVehicle}
+                    onClose={closeDetailModal}
+                    formatPrice={formatPrice}
+                />
             )}
         </div>
     );

@@ -63,6 +63,7 @@ class VehiculeFactory extends Factory
             'photos' => json_encode($this->faker->randomElements($imageUrls, $this->faker->numberBetween(1, 3))),
             'is_featured' => $this->faker->boolean(15),
             'is_new' => $this->faker->boolean(25),
+            'contact_number' => $this->faker->phoneNumber(),
         ];
     }
 

@@ -49,6 +49,7 @@ class VehicleStoreRequest extends FormRequest
             'photos.*' => 'image|mimes:jpeg,png,jpg,gif|max:5120', // 5MB max per image
             'is_featured' => 'boolean',
             'is_new' => 'boolean',
+            'contact_number' => 'nullable|string|max:20|regex:/^[0-9+\s\-()]+$/',
         ];
     }
 
@@ -79,6 +80,7 @@ class VehicleStoreRequest extends FormRequest
             'photos.*.image' => 'Chaque fichier doit être une image.',
             'photos.*.mimes' => 'Les images doivent être au format JPEG, PNG, JPG ou GIF.',
             'photos.*.max' => 'Chaque image ne peut pas dépasser 5MB.',
+            'contact_number.regex' => 'Le numéro de contact contient des caractères non valides.',
         ];
     }
 
@@ -100,6 +102,7 @@ class VehicleStoreRequest extends FormRequest
             'photos' => 'photos',
             'is_featured' => 'véhicule en vedette',
             'is_new' => 'véhicule neuf',
+            'contact_number' => 'numéro de contact',
         ];
     }
 }

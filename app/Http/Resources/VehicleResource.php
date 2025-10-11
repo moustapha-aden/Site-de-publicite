@@ -35,7 +35,7 @@ class VehicleResource extends JsonResource
             // Infos supplémentaires
             'full_name' => $this->full_name,
             'formatted_price' => $this->formatted_price,
-
+            'contact_number' => $this->contact_number,
             // Timestamps
             'created_at' => $this->created_at?->toISOString(),
             'updated_at' => $this->updated_at?->toISOString(),

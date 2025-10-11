@@ -1,5 +1,5 @@
 import React, { useState } from 'react'; // 👈 Importez useState
-import { X, DollarSign, Car, Settings, Calendar, Fuel, ChevronLeft, ChevronRight } from 'lucide-react'; // 👈 Ajoutez les Chevrons pour la navigation
+import { X, DollarSign, Car, Settings, Calendar, Fuel, ChevronLeft, ChevronRight, Phone, MessageCircle } from 'lucide-react';
 
 const DetailModal = ({ vehicule, onClose, formatPrice }) => {
     // État pour suivre l'index de la photo affichée
@@ -138,8 +138,34 @@ const DetailModal = ({ vehicule, onClose, formatPrice }) => {
                         <strong className="block mb-1">Description:</strong>
                         {vehicule.description || "Aucune description détaillée n'est disponible pour ce véhicule."}
                     </p>
+                    <p>
+                        <strong>Contact :</strong> {vehicule.contact_number || 'Non spécifié'}
+                    </p>
 
                 </div>
+                {/* --- SECTION CONTACT --- */}
+                <div className="mt-6 flex justify-center gap-4">
+                    {/* Bouton WhatsApp */}
+                    <a
+                        href={`https://wa.me/${vehicule.contact_number?.replace(/\D/g, '')}`} // Nettoie le numéro
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-full shadow-md transition"
+                    >
+                        <MessageCircle className="w-5 h-5" />
+                        WhatsApp
+                    </a>
+
+                    {/* Bouton Appel */}
+                    <a
+                        href={`tel:${vehicule.contact_number}`}
+                        className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-full shadow-md transition"
+                    >
+                        <Phone className="w-5 h-5" />
+                        Appeler
+                    </a>
+                </div>
+                {/* --- FIN SECTION CONTACT --- */}
 
                 <div className="mt-6 text-right">
                     <button
