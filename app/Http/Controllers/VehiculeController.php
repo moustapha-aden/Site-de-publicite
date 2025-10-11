@@ -51,6 +51,14 @@ class VehiculeController extends Controller
                 }
             }
 
+            if ($request->filled('status')) {
+                if ($request->input('status') === 'active') {
+                    $query->active();
+                } elseif ($request->input('status') === 'inactive') {
+                    $query->inactive();
+                }
+            }
+
             if ($request->filled('price_min') || $request->filled('price_max')) {
                 $query->priceRange(
                     $request->input('price_min'),
@@ -281,6 +289,7 @@ class VehiculeController extends Controller
                     'brands' => Vehicule::getBrands(),
                     'fuel_types' => Vehicule::getFuelTypes(),
                     'transmission_types' => Vehicule::getTransmissionTypes(),
+                    'statuses' => Vehicule::getStatuses(),
                 ],
             ]);
 

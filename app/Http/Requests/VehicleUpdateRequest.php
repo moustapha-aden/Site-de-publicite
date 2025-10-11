@@ -53,6 +53,12 @@ class VehicleUpdateRequest extends FormRequest
             'is_featured' => 'sometimes|boolean',
             'is_new' => 'sometimes|boolean',
             'contact_number' => 'nullable|string|max:20|regex:/^[0-9+\s\-()]+$/',
+            'status' => [
+                'sometimes',
+                'nullable',
+                'string',
+                Rule::in(\App\Models\Vehicule::getStatuses())
+            ],
         ];
     }
 
@@ -84,6 +90,7 @@ class VehicleUpdateRequest extends FormRequest
             'photos.*.mimes' => 'Les images doivent être au format JPEG, PNG, JPG ou GIF.',
             'photos.*.max' => 'Chaque image ne peut pas dépasser 5MB.',
             'contact_number.regex' => 'Le numéro de contact contient des caractères non valides.',
+            'status.in' => 'Le statut sélectionné n\'est pas valide.',
         ];
     }
 
@@ -106,6 +113,7 @@ class VehicleUpdateRequest extends FormRequest
             'is_featured' => 'véhicule en vedette',
             'is_new' => 'véhicule neuf',
             'contact_number' => 'numéro de contact',
+            'status' => 'statut',
         ];
     }
 }

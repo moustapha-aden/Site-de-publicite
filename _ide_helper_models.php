@@ -94,15 +94,19 @@ namespace App\Models{
  * @property array<array-key, mixed>|null $photos
  * @property bool $is_featured
  * @property bool $is_new
+ * @property string|null $contact_number
+ * @property string $status
  * @property-read string|null $formatted_contact
  * @property-read string $formatted_price
  * @property-read string $full_name
  * @property-read array $photo_urls
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehicule active()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehicule byBrand(string $brand)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehicule byFuel(string $fuel)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehicule byTransmission(string $transmission)
  * @method static \Database\Factories\VehiculeFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehicule featured()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehicule inactive()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehicule new()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehicule newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehicule newQuery()
@@ -112,6 +116,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehicule used()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehicule whereBrand($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehicule whereColor($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehicule whereContactNumber($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehicule whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehicule whereDescription($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehicule whereFuel($value)
@@ -122,6 +127,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehicule whereModel($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehicule wherePhotos($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehicule wherePrice($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehicule whereStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehicule whereTransmission($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehicule whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehicule whereYear($value)

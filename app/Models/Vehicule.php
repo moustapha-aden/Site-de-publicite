@@ -24,7 +24,8 @@ class Vehicule extends Model
         'photos',
         'is_featured',
         'is_new',
-        'contact_number', // ✅ correction ici
+        'contact_number',
+        'status', // ✅ ajout du champ status
     ];
 
     protected $casts = [
@@ -134,6 +135,17 @@ class Vehicule extends Model
         );
     }
 
+    /** Scopes pour le statut */
+    public function scopeActive(Builder $query): Builder
+    {
+        return $query->where('status', 'active');
+    }
+
+    public function scopeInactive(Builder $query): Builder
+    {
+        return $query->where('status', 'inactive');
+    }
+
     /** Static lists */
     public static function getFuelTypes(): array
     {
@@ -152,5 +164,10 @@ class Vehicule extends Model
             'Honda', 'Ford', 'Nissan', 'Hyundai', 'Kia', 'Peugeot',
             'Renault', 'Citroën', 'Opel', 'Fiat', 'Skoda', 'SEAT'
         ];
+    }
+
+    public static function getStatuses(): array
+    {
+        return ['active', 'inactive'];
     }
 }

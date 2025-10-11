@@ -7,7 +7,7 @@ import { API_URL } from '../../api';
 
 const emptyForm = {
     brand: '', model: '', year: '', price: '', mileage: '', fuel: '',
-    transmission: '', color: '', description: '', is_featured: false, is_new: false,contact_number: '',
+    transmission: '', color: '', description: '', is_featured: false, is_new: false, contact_number: '', status: 'active',
 };
 
 const initialFilters = {
@@ -246,7 +246,8 @@ export const useVehicles = (token) => {
             transmission: vehicle.transmission ?? '', color: vehicle.color ?? '',
             description: vehicle.description ?? '', is_featured: !!vehicle.is_featured,
             is_new: !!vehicle.is_new,
-            contact_number:vehicle.contact_number ?? '', // 👈 Ajout ici
+            contact_number: vehicle.contact_number ?? '',
+            status: vehicle.status ?? 'active',
 
         });
         setFormErrors({});

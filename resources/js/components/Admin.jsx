@@ -28,6 +28,8 @@ const StatCard = ({ icon: Icon, title, value, color, description }) => (
 
 const getStatusColor = (status) => {
     switch (status) {
+        case 'active': return 'bg-green-100 text-green-800';
+        case 'inactive': return 'bg-red-100 text-red-800';
         case 'Disponible': return 'bg-green-100 text-green-800';
         case 'Vendu': return 'bg-blue-100 text-blue-800';
         case 'Réservé': return 'bg-yellow-100 text-yellow-800';
@@ -162,7 +164,7 @@ export default function Admin() {
         setFormData({
             brand: '', model: '', year: '', price: '', mileage: '', fuel: '',
             transmission: '', color: '', description: '', is_featured: false,
-            is_new: false, contact_number: '',
+            is_new: false, contact_number: '', status: 'active',
         });
         setFormErrors({});
         setIsModalOpen(true);
@@ -186,6 +188,7 @@ export default function Admin() {
             is_featured: !!vehicle.is_featured,
             is_new: !!vehicle.is_new,
             contact_number: vehicle.contact_number ?? '',
+            status: vehicle.status ?? 'active',
         });
         setFormErrors({});
         setIsModalOpen(true);
@@ -415,7 +418,7 @@ const handleChange = (e) => {
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{formatPrice(vehicle.price)}</td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(vehicle.status)}`}>
-                                                {vehicle.status || 'Inconnu'}
+                                                {vehicle.status === 'active' ? 'Actif' : vehicle.status === 'inactive' ? 'Inactif' : vehicle.status || 'Inconnu'}
                                             </span>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
