@@ -172,7 +172,7 @@ class AuthTest extends TestCase
     /** @test */
     public function unauthenticated_user_cannot_access_protected_routes()
     {
-        $response = $this->getJson('/api/dashboard');
+        $response = $this->getJson('/api/admin/dashboard');
 
         $response->assertStatus(401);
     }

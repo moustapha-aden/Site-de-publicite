@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { href, Link, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X, User, LogOut, LogIn } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -89,7 +89,7 @@ export default function Header() {
                                             </p>
                                         </div>
                                         <Link
-                                            to="/admin"
+                                            to="/admin/dashboard"
                                             className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                                             onClick={() => setIsUserMenuOpen(false)}
                                         >
@@ -166,7 +166,7 @@ export default function Header() {
                                         </p>
                                     </div>
                                     <Link
-                                        to="/admin"
+                                        to="/admin/dashboard"
                                         onClick={() => setIsMobileMenuOpen(false)}
                                         className="flex items-center px-3 py-2 rounded-md text-base font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50 transition duration-150"
                                     >

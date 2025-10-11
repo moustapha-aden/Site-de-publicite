@@ -18,7 +18,7 @@ export default function LoginPage() {
     // Redirection si déjà connecté
     useEffect(() => {
         if (isAuthenticated) {
-            const from = location.state?.from?.pathname || '/admin';
+            const from = location.state?.from?.pathname || '/admin/dashboard';
             navigate(from, { replace: true });
         }
     }, [isAuthenticated, navigate, location]);
@@ -34,7 +34,7 @@ export default function LoginPage() {
 
             if (result.success) {
                 setSuccess('Connexion réussie ! Redirection en cours...');
-                const from = location.state?.from?.pathname || '/admin';
+                const from = location.state?.from?.pathname || '/admin/dashboard';
                 setTimeout(() => {
                     navigate(from, { replace: true });
                 }, 1500);

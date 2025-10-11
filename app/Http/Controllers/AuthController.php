@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\AuthLoginRequest;
-use App\Http\Resources\AuthResource;
 use App\Http\Resources\UserResource;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -14,14 +13,13 @@ use Illuminate\Support\Facades\Log;
 class AuthController extends Controller
 {
     /**
-     * Handle user login.
+     * Handle user login with Sanctum.
      */
     public function login(AuthLoginRequest $request): JsonResponse
     {
         try {
             $credentials = $request->only('email', 'password');
 
-            // Attempt authentication
             if (!Auth::attempt($credentials, $request->boolean('remember'))) {
                 Log::warning('Failed login attempt', [
                     'email' => $request->email,
@@ -40,14 +38,8 @@ class AuthController extends Controller
 
             $user = Auth::user();
 
-            // Manually create a token if createToken is not available
-            // For example, using Laravel Passport or a custom implementation
-            // Here, we'll fallback to a simple random string for demonstration
-            $token = bin2hex(random_bytes(40));
-            $expiresAt = now()->addDays(30);
-
-            // Optionally, store the token and expiry in the database if needed
-            // e.g., $user->tokens()->create(['token' => hash('sha256', $token), 'expires_at' => $expiresAt]);
+            // ✅ Crée un vrai token Sanctum
+            $token = $user->createToken('auth_token')->plainTextToken;
 
             Log::info('User logged in successfully', [
                 'user_id' => $user->id,
@@ -55,17 +47,14 @@ class AuthController extends Controller
                 'ip' => $request->ip()
             ]);
 
-            $authData = [
-                'user' => $user,
-                'token' => $token,
-                'expires_at' => now()->addDays(30)->toISOString(),
-                'message' => 'Connexion réussie'
-            ];
-
             return response()->json([
                 'success' => true,
                 'message' => 'Connexion réussie',
-                'data' => new AuthResource($authData)
+                'data' => [
+                    'user' => new UserResource($user),
+                    'token' => $token,
+                    'expires_at' => now()->addDays(30)->toISOString(),
+                ]
             ]);
 
         } catch (\Exception $e) {
@@ -89,9 +78,9 @@ class AuthController extends Controller
     {
         try {
             $user = $request->user();
-
-            // Revoke the token that was used to authenticate the current request
-            $request->user()->currentAccessToken()->delete();
+            if ($user && $user->currentAccessToken()) {
+                $user->currentAccessToken()->delete();
+            }
 
             Log::info('User logged out', [
                 'user_id' => $user?->id,
@@ -120,10 +109,18 @@ class AuthController extends Controller
     public function me(Request $request): JsonResponse
     {
         try {
+            $user = $request->user();
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Utilisateur non authentifié',
+                ], Response::HTTP_UNAUTHORIZED);
+            }
+
             return response()->json([
                 'success' => true,
-                'message' => 'User retrieved successfully',
-                'data' => new UserResource($request->user())
+                'message' => 'Utilisateur récupéré avec succès',
+                'data' => new UserResource($user)
             ]);
 
         } catch (\Exception $e) {
@@ -131,7 +128,7 @@ class AuthController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Une erreur est survenue lors de la récupération des informations utilisateur',
+                'message' => 'Erreur lors de la récupération de l’utilisateur',
                 'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
@@ -145,28 +142,25 @@ class AuthController extends Controller
         try {
             $user = $request->user();
 
-            // Revoke current token
-            $request->user()->currentAccessToken()->delete();
+            if ($user && $user->currentAccessToken()) {
+                $user->currentAccessToken()->delete();
+            }
 
-            // Create new token
-            $token = $user->createToken('auth_token', ['*'], now()->addDays(30))->plainTextToken;
+            $newToken = $user->createToken('auth_token')->plainTextToken;
 
             Log::info('Token refreshed', [
                 'user_id' => $user->id,
                 'ip' => $request->ip()
             ]);
 
-            $authData = [
-                'user' => $user,
-                'token' => $token,
-                'expires_at' => now()->addDays(30)->toISOString(),
-                'message' => 'Token rafraîchi avec succès'
-            ];
-
             return response()->json([
                 'success' => true,
                 'message' => 'Token rafraîchi avec succès',
-                'data' => new AuthResource($authData)
+                'data' => [
+                    'user' => new UserResource($user),
+                    'token' => $newToken,
+                    'expires_at' => now()->addDays(30)->toISOString(),
+                ]
             ]);
 
         } catch (\Exception $e) {
@@ -174,7 +168,7 @@ class AuthController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Une erreur est survenue lors du rafraîchissement du token',
+                'message' => 'Erreur lors du rafraîchissement du token',
                 'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }

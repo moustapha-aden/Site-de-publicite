@@ -1,10 +1,8 @@
-// VehiclesHooks.js ou useVehicles.js
+// resources/js/hooks/useVehicles.js
 
 import { useState, useEffect, useCallback } from 'react';
-// import { useAuth } from '../contexts/AuthContext';
-
+// import { useAuth } from '../contexts/AuthContext'; // Non utilisé directement ici, mais utile pour le contexte
 import { formatPrice, getFuelIcon } from '../../utils';
-
 import { API_URL } from '../../api';
 
 const emptyForm = {
@@ -52,7 +50,6 @@ export const useVehicles = (token) => {
     // LOGIQUE DE RÉCUPÉRATION DES DONNÉES ET D'ACTION
     // #######################################################
 
-    // FIX 1: Ajout du token dans les headers et les dépendances du useCallback.
     const fetchVehicles = useCallback(async (page = pagination.current_page) => {
         try {
             setLoading(true);
@@ -68,20 +65,24 @@ export const useVehicles = (token) => {
             const headers = {
                 'Accept': 'application/json',
             };
-            // Ajout du Bearer token pour les requêtes protégées
             if (token) {
                 headers['Authorization'] = `Bearer ${token}`;
             }
 
             const response = await fetch(`${API_URL}/vehicles?${queryParams}`, {
-                headers: headers // Utilisation des headers
+                headers: headers
             });
             // ------------------------------------------------------------
 
+            // AMÉLIORATION: Gestion des erreurs HTTP (401, 500, etc.)
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({ message: response.statusText || 'Erreur réseau inconnue' }));
+                throw new Error(errorData.message || `Erreur HTTP ${response.status}`);
+            }
+
             const data = await response.json();
 
-            // Vérification de la réussite OU du statut HTTP 2xx
-            if (response.ok && data.success) {
+            if (data.success) {
                 setVehicles(data.data);
                 setPagination({
                     current_page: data.meta.current_page,
@@ -91,21 +92,18 @@ export const useVehicles = (token) => {
                 });
                 setError(null);
             } else {
-                // Cette branche attrape maintenant l'erreur "Unauthenticated" si le token n'est pas passé/valide
-                setError(data.message || 'Erreur lors du chargement des véhicules');
-                setVehicles([]);
+                 throw new Error(data.message || 'Erreur lors du chargement des véhicules (JSON)');
             }
         } catch (err) {
-            setError('Erreur de connexion au serveur.');
+            setError(err.message || 'Erreur de connexion ou d\'accès au serveur.');
             setVehicles([]);
             console.error('Error fetching vehicles:', err);
         } finally {
             setLoading(false);
         }
-    }, [filters, pagination.per_page, token]); // FIX 2 : Ajout de 'token' aux dépendances
+    }, [filters, pagination.per_page, token]); // FIX : Ajout de 'token' aux dépendances
 
     const fetchFilterOptions = async () => {
-        // Cette requête ne nécessite probablement pas d'authentification
         try {
             const response = await fetch(`${API_URL}/vehicles/filter/options`);
             const data = await response.json();
@@ -133,47 +131,56 @@ export const useVehicles = (token) => {
 
             // 1. Ajouter les champs de texte et numériques au FormData
             Object.entries(formData).forEach(([key, val]) => {
-                if (val !== undefined && val !== null) body.append(key, String(val));
+                // S'assurer que les booléens sont envoyés comme des chaînes '1' ou '0'
+                if (key === 'is_featured' || key === 'is_new') {
+                    body.append(key, val ? '1' : '0');
+                } else if (val !== undefined && val !== null) {
+                    body.append(key, String(val));
+                }
             });
 
-            // 2. GESTION DES FICHIERS : Ajouter les images au FormData (images[])
+            // 2. GESTION DES FICHIERS : Ajouter les images au FormData (photos[])
             if (imageFiles) {
                 for (let i = 0; i < imageFiles.length; i++) {
-                    body.append('images[]', imageFiles[i]);
+                    body.append('photos[]', imageFiles[i]);
                 }
             }
 
-            let method = 'POST';
-            if (modalMode === 'edit') {
-                body.append('_method', 'PUT');
-            }
+            // --- CORRECTION CLÉ POUR PUT/PATCH AVEC FormData ---
+            let url = `${API_URL}/vehicles`;
+            let method = 'POST'; // Doit être POST pour l'envoi de FormData (fichiers)
 
-            const url = modalMode === 'create'
-                ? `${API_URL}/vehicles`
-                : `${API_URL}/vehicles/${editingId}`;
+            if (modalMode === 'edit') {
+                // Ajout du champ caché pour simuler la méthode PUT côté backend (ex: Laravel)
+                body.append('_method', 'PUT');
+                url = `${API_URL}/vehicles/${editingId}`;
+            }
+            // ----------------------------------------------------------------
 
             const response = await fetch(url, {
-                method,
+                method: method, // Utilise POST pour l'envoi de FormData
                 headers: {
                     'Accept': 'application/json',
-                    'Authorization': `Bearer ${token}`, // Ce token est correct
+                    'Authorization': `Bearer ${token}`,
+                    // IMPORTANT: Ne pas définir 'Content-Type' pour FormData!
                 },
                 body,
             });
             const data = await response.json();
 
             if (!response.ok || data.success === false) {
-                setFormErrors(data.errors || { general: [data.message || 'Erreur inconnue'] });
+                 // Gère le 401/422/etc.
+                setFormErrors(data.errors || { general: [data.message || 'Erreur inconnue lors de la soumission.'] });
                 return;
             }
 
             setIsModalOpen(false);
             setImageFiles(null);
-            // Re-fetch la première page. Ce nouvel appel est maintenant authentifié.
+            // Re-fetch la première page pour voir la nouvelle/mise à jour
             await fetchVehicles(1);
 
         } catch (err) {
-            setFormErrors({ general: ['Erreur de connexion au serveur'] });
+            setFormErrors({ general: ['Erreur de connexion au serveur.'] });
             console.error('submitVehicle error:', err);
         } finally {
             setFormSubmitting(false);
@@ -184,14 +191,11 @@ export const useVehicles = (token) => {
     // EFFETS DE BORD
     // #######################################################
 
-    // Déclenche la récupération des véhicules au montage et lorsque les filtres changent
     useEffect(() => {
-        // Appelle fetchVehicles.
         fetchVehicles();
     }, [filters, fetchVehicles]);
 
 
-    // Déclenche la récupération des options de filtre une seule fois.
     useEffect(() => {
         fetchFilterOptions();
     }, []);
@@ -201,7 +205,6 @@ export const useVehicles = (token) => {
     // #######################################################
 
     const handleFilterChange = (key, value) => {
-        // Réinitialiser la page à 1 lorsque le filtre change.
         setFilters(prev => ({ ...prev, [key]: value }));
         setPagination(prev => ({ ...prev, current_page: 1 }));
     };
@@ -236,6 +239,7 @@ export const useVehicles = (token) => {
     const openEditModal = (vehicle) => {
         setModalMode('edit');
         setEditingId(vehicle.id);
+        // Assurez-vous d'avoir les données exactes du véhicule pour l'édition
         setFormData({
             brand: vehicle.brand ?? '', model: vehicle.model ?? '', year: vehicle.year ?? '',
             price: vehicle.price ?? '', mileage: vehicle.mileage ?? '', fuel: vehicle.fuel ?? '',

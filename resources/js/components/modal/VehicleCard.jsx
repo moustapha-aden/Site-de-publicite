@@ -1,36 +1,58 @@
 // VehicleCard.jsx
 
 import React from 'react';
-// Ajoutez l'icône Fuel pour la rendre disponible, même si nous utiliserons l'icône retournée par getFuelIcon
-import { Car, Star, Calendar, Settings, DollarSign, Edit, Fuel } from 'lucide-react';
+import { Car, Star, Calendar, Settings, DollarSign, Edit } from 'lucide-react';
 
 const VehicleCard = ({
     vehicle,
     API_URL,
     isAuthenticated,
     formatPrice,
-    getFuelIcon, // Le composant utilitaire qui retourne le composant icône
+    getFuelIcon,
     openDetailModal,
     openEditModal
 }) => {
-    // 1. Déterminez le composant Icône de carburant à l'aide de l'utilitaire.
-    // getFuelIcon retourne un composant React (ex: Droplet, Zap).
+    // Déterminez le composant Icône de carburant
     const FuelIconComponent = getFuelIcon(vehicle.fuel);
 
-    // Correction majeure : Suppression de la boucle 'vehicles.map' et de la grille.
-    // Ce composant ne rend QU'UNE SEULE carte.
+    // CORRECTION: Gérer les photos (photo_urls vient de l'accessor Laravel)
+    const getVehicleImage = () => {
+        // Option 1: Si vous utilisez l'accessor photo_urls du modèle
+        if (vehicle.photo_urls && vehicle.photo_urls.length > 0) {
+            return vehicle.photo_urls[0];
+        }
+
+        // Option 2: Si vous recevez directement les photos
+        if (vehicle.photos && Array.isArray(vehicle.photos) && vehicle.photos.length > 0) {
+            // Construire l'URL complète
+            return `${API_URL.replace('/api', '')}/storage/${vehicle.photos[0]}`;
+        }
+
+        return null;
+    };
+
+    const vehicleImage = getVehicleImage();
+
     return (
-        <div
-            className="relative bg-white rounded-lg shadow hover:shadow-lg transition overflow-hidden"
-        >
+        <div className="relative bg-white rounded-lg shadow hover:shadow-lg transition overflow-hidden">
             {/* Image du véhicule */}
             <div className="aspect-w-16 aspect-h-9 w-full overflow-hidden rounded-t-lg">
-                {vehicle.images && vehicle.images.length > 0 ? (
+                {vehicleImage ? (
                     <img
-                        // Assurez-vous que l'API_URL est utilisé correctement
-                        src={`${API_URL.replace('/api', '')}/storage/${vehicle.images[0].path}`}
+                        src={vehicleImage}
                         alt={`${vehicle.brand} ${vehicle.model}`}
                         className="h-full w-full object-cover object-center"
+                        onError={(e) => {
+                            // Fallback si l'image ne charge pas
+                            e.target.style.display = 'none';
+                            e.target.parentElement.innerHTML = `
+                                <div class="h-full w-full bg-gray-200 flex items-center justify-center">
+                                    <svg class="h-16 w-16 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                                    </svg>
+                                </div>
+                            `;
+                        }}
                     />
                 ) : (
                     <div className="h-full w-full bg-gray-200 flex items-center justify-center">
@@ -71,9 +93,8 @@ const VehicleCard = ({
                             {formatPrice(vehicle.price)}
                         </span>
                     </div>
-                    {/* Carburant - CORRECTION : Utilisation de FuelIconComponent */}
+                    {/* Carburant */}
                     <div className="flex items-center gap-2 text-sm text-gray-600">
-                        {/* Utilise le composant retourné par l'utilitaire */}
                         <FuelIconComponent className="h-4 w-4" />
                         <span>{vehicle.fuel}</span>
                     </div>
@@ -87,9 +108,11 @@ const VehicleCard = ({
                         {Number(vehicle.mileage).toLocaleString('fr-FR')} km
                     </div>
                     {/* Couleur */}
-                    <div className="text-sm text-gray-600">
-                        Couleur : {vehicle.color}
-                    </div>
+                    {vehicle.color && (
+                        <div className="text-sm text-gray-600">
+                            Couleur : {vehicle.color}
+                        </div>
+                    )}
                 </div>
 
                 {vehicle.description && (

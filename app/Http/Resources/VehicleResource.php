@@ -18,36 +18,27 @@ class VehicleResource extends JsonResource
             'id' => $this->id,
             'brand' => $this->brand,
             'model' => $this->model,
-            'full_name' => $this->full_name,
             'year' => $this->year,
             'price' => $this->price,
-            'formatted_price' => $this->formatted_price,
             'mileage' => $this->mileage,
             'fuel' => $this->fuel,
             'transmission' => $this->transmission,
             'color' => $this->color,
             'description' => $this->description,
-            'photos' => $this->photos,
-            'photo_urls' => $this->photo_urls,
             'is_featured' => $this->is_featured,
             'is_new' => $this->is_new,
+
+            // IMPORTANT: Retourner les photos avec les URLs complètes
+            'photos' => $this->photos, // Le tableau brut
+            'photo_urls' => $this->photo_urls, // Les URLs complètes (depuis l'accessor)
+
+            // Infos supplémentaires
+            'full_name' => $this->full_name,
+            'formatted_price' => $this->formatted_price,
+
+            // Timestamps
             'created_at' => $this->created_at?->toISOString(),
             'updated_at' => $this->updated_at?->toISOString(),
-        ];
-    }
-
-    /**
-     * Get additional data that should be returned with the resource array.
-     *
-     * @return array<string, mixed>
-     */
-    public function with(Request $request): array
-    {
-        return [
-            'meta' => [
-                'version' => '1.0',
-                'timestamp' => now()->toISOString(),
-            ],
         ];
     }
 }

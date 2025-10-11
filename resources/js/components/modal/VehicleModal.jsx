@@ -8,6 +8,7 @@ const VehicleModal = ({
     formSubmitting,
     filterOptions,
     closeModal,
+    brands,
     handleChange,
     submitVehicle,
 }) => {
@@ -39,10 +40,28 @@ const VehicleModal = ({
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {/* Marque */}
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Marque</label>
-                            <input name="brand" value={formData.brand} onChange={handleChange} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" required />
-                            {formErrors.brand && <p className="text-xs text-red-600 mt-1">{formErrors.brand[0]}</p>}
-                        </div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Marque
+                        </label>
+                        <select
+                            name="brand"
+                            value={formData.brand}
+                            onChange={handleChange}
+                            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            required
+                        >
+                            <option value="">-- Sélectionnez une marque --</option>
+                            {brands.map((brand) => (
+                                <option key={brand.id} value={brand.name}>
+                                    {brand.name}
+                                </option>
+                            ))}
+                        </select>
+                        {formErrors.brand && (
+                            <p className="text-xs text-red-600 mt-1">{formErrors.brand[0]}</p>
+                        )}
+                    </div>
+
 
                         {/* Modèle */}
                         <div>

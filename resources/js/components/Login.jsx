@@ -69,15 +69,16 @@ const LoginForm = ({ handleSuccessfulLogin,}) => {
 
     try {
       // Appel réel vers le backend Laravel
-      const response = await axios.post("http://127.0.0.1:8000/api/login", {
+      // IMPORTANT: utiliser le nouvel endpoint unifié
+      const response = await axios.post("http://127.0.0.1:8000/api/auth/login", {
         email,
         password,
       });
 
-      const data = response.data;
+      const data = response.data?.data || {};
 
       setStatusMessage(`Connexion réussie ! Bienvenue ${data.user.name}. Redirection en cours...`);
-      console.log(`Token reçu: ${data.token}`);
+      console.log(`Token reçu (aperçu): ${(data.token || '').slice(0, 12)}...`);
 
       // Mise à jour de l'état global et configuration d'Axios via la prop
       setTimeout(() => {
@@ -288,7 +289,7 @@ const Dashboard = ({ userData, handleLogout }) => {
 
         // Vrai appel vers le backend (protégé par Sanctum)
         // Axios utilisera le header d'autorisation global défini
-        const response = await axios.get("http://127.0.0.1:8000/api/dashboard");
+        const response = await axios.get("http://127.0.0.1:8000/api/admin/dashboard");
 
         setDashboardData({
           user: userData.user,

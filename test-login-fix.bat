@@ -7,7 +7,7 @@ echo 1. Ouvrez http://127.0.0.1:8000/clean-storage.html
 echo 2. Cliquez sur "Nettoyer le localStorage"
 echo 3. Ouvrez http://127.0.0.1:8000/login
 echo 4. Connectez-vous avec test@example.com / password
-echo 5. Vérifiez que vous êtes redirigé vers /admin
+echo 5. Vérifiez que vous êtes redirigé vers /admin/dashboard
 echo 6. Rafraîchissez la page - vous devez rester connecté
 echo.
 
@@ -20,7 +20,7 @@ echo.
 
 echo 🌐 URLs de test :
 echo - Login: http://127.0.0.1:8000/login
-echo - Admin: http://127.0.0.1:8000/admin
+echo - Admin: http://127.0.0.1:8000/admin/dashboard
 echo - Nettoyage: http://127.0.0.1:8000/clean-storage.html
 echo.
 

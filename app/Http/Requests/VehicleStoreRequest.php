@@ -27,7 +27,7 @@ class VehicleStoreRequest extends FormRequest
                 'required',
                 'string',
                 'max:255',
-                Rule::in(\App\Models\Vehicule::getBrands())
+                // Rule::in(\App\Models\Vehicule::getBrands())
             ],
             'model' => 'required|string|max:255',
             'year' => 'required|integer|min:1900|max:' . (date('Y') + 1),

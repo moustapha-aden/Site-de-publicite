@@ -174,10 +174,19 @@ class VehiculeController extends Controller
 
             // Handle photo uploads
             if ($request->hasFile('photos')) {
-                // Delete old photos
-                if ($vehicule->photos) {
-                    foreach ($vehicule->photos as $photo) {
-                        Storage::disk('public')->delete($photo);
+                // Delete old photos - AVEC PROTECTION
+                $oldPhotos = $vehicule->photos;
+
+                // S'assurer que c'est bien un tableau
+                if (is_string($oldPhotos)) {
+                    $oldPhotos = json_decode($oldPhotos, true) ?? [];
+                }
+
+                if (is_array($oldPhotos) && !empty($oldPhotos)) {
+                    foreach ($oldPhotos as $photo) {
+                        if ($photo && Storage::disk('public')->exists($photo)) {
+                            Storage::disk('public')->delete($photo);
+                        }
                     }
                 }
 
@@ -197,11 +206,14 @@ class VehiculeController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Vehicle updated successfully',
-                'data' => new VehicleResource($vehicule),
+                'data' => new VehicleResource($vehicule->fresh()),
             ]);
 
         } catch (\Exception $e) {
-            Log::error('Error updating vehicle: ' . $e->getMessage());
+            Log::error('Error updating vehicle: ' . $e->getMessage(), [
+                'vehicle_id' => $vehicule->id ?? null,
+                'trace' => $e->getTraceAsString()
+            ]);
 
             return response()->json([
                 'success' => false,
@@ -217,10 +229,19 @@ class VehiculeController extends Controller
     public function destroy(Vehicule $vehicule): JsonResponse
     {
         try {
-            // Delete associated photos
-            if ($vehicule->photos) {
-                foreach ($vehicule->photos as $photo) {
-                    Storage::disk('public')->delete($photo);
+            // Delete associated photos - AVEC PROTECTION
+            $photos = $vehicule->photos;
+
+            // S'assurer que c'est bien un tableau
+            if (is_string($photos)) {
+                $photos = json_decode($photos, true) ?? [];
+            }
+
+            if (is_array($photos) && !empty($photos)) {
+                foreach ($photos as $photo) {
+                    if ($photo && Storage::disk('public')->exists($photo)) {
+                        Storage::disk('public')->delete($photo);
+                    }
                 }
             }
 
@@ -234,7 +255,10 @@ class VehiculeController extends Controller
             ]);
 
         } catch (\Exception $e) {
-            Log::error('Error deleting vehicle: ' . $e->getMessage());
+            Log::error('Error deleting vehicle: ' . $e->getMessage(), [
+                'vehicle_id' => $vehicule->id ?? null,
+                'trace' => $e->getTraceAsString()
+            ]);
 
             return response()->json([
                 'success' => false,

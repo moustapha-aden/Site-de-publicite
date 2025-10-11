@@ -1,10 +1,12 @@
 <?php
 
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\VehiculeController;
+use App\Http\Controllers\BrandController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\VehiculeController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -28,6 +30,7 @@ Route::prefix('vehicles')->group(function () {
     Route::get('/{vehicule}', [VehiculeController::class, 'show']);
     Route::get('/filter/options', [VehiculeController::class, 'filterOptions']);
 });
+Route::get('/brand', [BrandController::class, 'index']); // ⬅️ DÉPLACER ICI
 
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {
@@ -45,6 +48,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Dashboard routes
     Route::get('/dashboard', [DashboardController::class, 'index']);
+    Route::apiResource('brands', BrandController::class);
 
     // Protected vehicle routes (full CRUD)
     Route::prefix('vehicles')->group(function () {

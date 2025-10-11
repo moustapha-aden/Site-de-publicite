@@ -12,41 +12,23 @@ use Illuminate\Support\Facades\DB;
  */
 class DashboardController extends Controller
 {
-    /**
-     * Récupère et retourne les données nécessaires pour le tableau de bord (Admin uniquement).
-     * Cette route est protégée par le middleware 'auth:sanctum'.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function index(Request $request)
     {
-        // L'objet $request->user() est disponible grâce à 'auth:sanctum'
         $user = $request->user();
+        $userRole = 'admin'; // Fixe à 'admin'
 
-        // Le rôle est fixe à 'admin' car il n'y a pas d'autres rôles implémentés actuellement.
-        $userRole = 'admin';
-
-        // Statistiques dynamiques depuis la base
+        // Calcul des statistiques
         $totalVehicules = Vehicule::count();
-        $vehiculesVedettes = Vehicule::where('is_featured', true)->count();
-        $vehiculesNeufs = Vehicule::where('is_new', true)->count();
-        $prixMoyen = Vehicule::avg('price');
-        $prixMin = Vehicule::min('price');
-        $prixMax = Vehicule::max('price');
-
-        $clientsTotal = User::count();
-        $clientsDerniers30Jours = User::where('created_at', '>=', now()->subDays(30))->count();
+        // // Exemple: Nous allons supposer une table "Reparation"
+        // $reparationsEnCours = DB::table('reparations')->where('status', 'en_cours')->count();
+        // ✅ La remplacer par une valeur par défaut de 0
+        $reparationsEnCours = 0;
 
         $stats = [
+            // Clés utilisées par le Frontend React (voir ci-dessous)
             'total_vehicules' => $totalVehicules,
-            'vehicules_vedettes' => $vehiculesVedettes,
-            'vehicules_neufs' => $vehiculesNeufs,
-            'prix_moyen' => round((float) $prixMoyen, 2),
-            'prix_min' => $prixMin ? (float) $prixMin : 0,
-            'prix_max' => $prixMax ? (float) $prixMax : 0,
-            'clients_total' => $clientsTotal,
-            'nouveaux_clients_30j' => $clientsDerniers30Jours,
+            'reparations_en_cours' => $reparationsEnCours,
+            // etc.
         ];
 
         $message = "Bienvenue sur le tableau de bord de l'administration, {$user->name} !";
