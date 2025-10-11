@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BrandController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\VehiculeController;
+use App\Http\Controllers\ParcelleController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -30,6 +31,14 @@ Route::prefix('vehicles')->group(function () {
     Route::get('/{vehicule}', [VehiculeController::class, 'show']);
     Route::get('/filter/options', [VehiculeController::class, 'filterOptions']);
 });
+
+// Public parcelle routes (read-only)
+Route::prefix('parcelles')->group(function () {
+    Route::get('/', [ParcelleController::class, 'index']);
+    Route::get('/{parcelle}', [ParcelleController::class, 'show']);
+    Route::get('/filter/options', [ParcelleController::class, 'filterOptions']);
+});
+
 Route::get('/brand', [BrandController::class, 'index']); // ⬅️ DÉPLACER ICI
 
 // Protected routes
@@ -55,5 +64,12 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/', [VehiculeController::class, 'store']);
         Route::put('/{vehicule}', [VehiculeController::class, 'update']);
         Route::delete('/{vehicule}', [VehiculeController::class, 'destroy']);
+    });
+
+    // Protected parcelle routes (full CRUD)
+    Route::prefix('parcelles')->group(function () {
+        Route::post('/', [ParcelleController::class, 'store']);
+        Route::put('/{parcelle}', [ParcelleController::class, 'update']);
+        Route::delete('/{parcelle}', [ParcelleController::class, 'destroy']);
     });
 });

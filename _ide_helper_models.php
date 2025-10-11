@@ -34,6 +34,58 @@ namespace App\Models{
 namespace App\Models{
 /**
  * @property int $id
+ * @property string $title
+ * @property string $location
+ * @property numeric $price
+ * @property string $type
+ * @property numeric|null $surface
+ * @property int|null $rooms
+ * @property int|null $bedrooms
+ * @property int|null $bathrooms
+ * @property string|null $description
+ * @property array<array-key, mixed>|null $photos
+ * @property string|null $contact_number
+ * @property string $status
+ * @property bool $is_featured
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read string|null $formatted_contact
+ * @property-read string $formatted_price
+ * @property-read array $photo_urls
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Parcelle active()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Parcelle byLocation(string $location)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Parcelle byType(string $type)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Parcelle featured()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Parcelle inactive()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Parcelle newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Parcelle newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Parcelle priceRange(?float $min = null, ?float $max = null)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Parcelle query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Parcelle search(string $search)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Parcelle surfaceRange(?float $min = null, ?float $max = null)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Parcelle whereBathrooms($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Parcelle whereBedrooms($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Parcelle whereContactNumber($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Parcelle whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Parcelle whereDescription($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Parcelle whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Parcelle whereIsFeatured($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Parcelle whereLocation($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Parcelle wherePhotos($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Parcelle wherePrice($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Parcelle whereRooms($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Parcelle whereStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Parcelle whereSurface($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Parcelle whereTitle($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Parcelle whereType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Parcelle whereUpdatedAt($value)
+ */
+	class Parcelle extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
+ * @property int $id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @method static \Database\Factories\ReparationFactory factory($count = null, $state = [])
