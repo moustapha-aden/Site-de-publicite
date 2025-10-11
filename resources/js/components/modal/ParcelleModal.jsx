@@ -53,7 +53,7 @@ const ParcelleModal = ({
 
                         {/* Prix */}
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Prix (€)</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Prix (fdj)</label>
                             <input
                                 type="number"
                                 name="price"
