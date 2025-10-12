@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import {
-    Users, Car, BarChart3, Settings, Plus, Edit, Trash2, Eye, LogOut, Loader2, Tag, Home, Building
+    Users, Car, BarChart3, Settings, Plus, Edit, Trash2, Eye, LogOut, Loader2, Tag, Home, Building, User
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import DetailModal from './modal/DetailModal';
@@ -12,6 +12,8 @@ import LocationModal from './modal/LocationModal';
 import LocationDetailModal from './modal/LocationDetailModal';
 import UserModal from './modal/UserModal';
 import UserDetailModal from './modal/UserDetailModal';
+import ProfileModal from './modal/ProfileModal';
+import ProfileDetailModal from './modal/ProfileDetailModal';
 import ConfirmModal from './modal/ConfirmModal';
 import BrandManagement from './BrandManagement';
 import Pagination from './commun/Pagination'; // Assurez-vous que ce fichier existe
@@ -134,6 +136,14 @@ export default function Admin() {
     const [userFormSubmitting, setUserFormSubmitting] = useState(false);
     const [userFormErrors, setUserFormErrors] = useState({});
 
+    // --- États pour le Profil Utilisateur ---
+    const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+    const [showProfileDetail, setShowProfileDetail] = useState(false);
+    const [currentUser, setCurrentUser] = useState(null);
+    const [profileFormData, setProfileFormData] = useState({});
+    const [profileFormSubmitting, setProfileFormSubmitting] = useState(false);
+    const [profileFormErrors, setProfileFormErrors] = useState({});
+
     // --- États pour le Modal de Confirmation ---
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [confirmModalData, setConfirmModalData] = useState({
@@ -149,6 +159,24 @@ export default function Admin() {
         message: '',
         type: 'success'
     });
+
+    // --- Fonction pour récupérer l'utilisateur connecté ---
+    const fetchCurrentUser = useCallback(async () => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/auth/me`, {
+                headers: {
+                    'Accept': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+            });
+            const data = await response.json();
+            if (response.ok && data.success) {
+                setCurrentUser(data.data);
+            }
+        } catch (err) {
+            console.error('fetchCurrentUser error:', err);
+        }
+    }, [token]);
 
     // --- Fonctions de Récupération des Données ---
     const fetchBrands = useCallback(async () => {
@@ -426,8 +454,8 @@ export default function Admin() {
             console.error('submitVehicle error:', err);
         } finally {
             setFormSubmitting(false);
-    }
-};
+        }
+    };
 
 // --- Fonction de suppression des véhicules ---
 const deleteVehicle = async (vehicleId) => {
@@ -520,7 +548,7 @@ const deleteLocation = async (locationId) => {
         },
         'danger'
     );
-};
+    };
 
 // --- Fonctions de Gestion des Parcelles ---
 const closeParcelleModal = () => {
@@ -939,6 +967,89 @@ const closeToast = () => {
     setToast(prev => ({ ...prev, isVisible: false }));
 };
 
+// --- Fonctions de Gestion du Profil ---
+const closeProfileModal = () => {
+    setIsProfileModalOpen(false);
+    setProfileFormErrors({});
+    fetchCurrentUser();
+};
+
+const closeProfileDetailModal = () => {
+    setShowProfileDetail(false);
+};
+
+const openProfileModal = () => {
+    if (currentUser) {
+        setProfileFormData({
+            name: currentUser.name || '',
+            email: currentUser.email || '',
+            current_password: '',
+            password: '',
+            password_confirmation: ''
+        });
+        setProfileFormErrors({});
+        setIsProfileModalOpen(true);
+    }
+};
+
+const openProfileDetailModal = () => {
+    setShowProfileDetail(true);
+};
+
+const submitProfile = async (e) => {
+    e.preventDefault();
+
+    if (!token) {
+        setProfileFormErrors({ general: ['Vous devez être connecté pour effectuer cette action.'] });
+        return;
+    }
+
+    setProfileFormSubmitting(true);
+    setProfileFormErrors({});
+
+    try {
+        const body = new FormData();
+
+        Object.entries(profileFormData).forEach(([key, val]) => {
+            if (val !== undefined && val !== null && val !== '') {
+                body.append(key, String(val));
+            }
+        });
+
+        const response = await fetch(`${API_BASE_URL}/auth/profile`, {
+            method: 'PUT',
+            headers: {
+                'Accept': 'application/json',
+                'Authorization': `Bearer ${token}`,
+            },
+            body,
+        });
+        const data = await response.json();
+
+        if (!response.ok || data.success === false) {
+            setProfileFormErrors(data.errors || { general: [data.message || 'Erreur inconnue lors de la soumission.'] });
+            return;
+        }
+
+        showToast('Profil modifié avec succès !', 'success');
+        closeProfileModal();
+
+    } catch (err) {
+        setProfileFormErrors({ general: ['Erreur de connexion au serveur.'] });
+        console.error('submitProfile error:', err);
+    } finally {
+        setProfileFormSubmitting(false);
+    }
+};
+
+const handleProfileChange = (e) => {
+    const { name, value } = e.target;
+    setProfileFormData((prev) => ({
+        ...prev,
+        [name]: value,
+    }));
+};
+
 // Fonction pour gérer les changements dans le formulaire
 const handleChange = (e) => {
     const { name, type, value, checked, files } = e.target;
@@ -975,6 +1086,7 @@ const handleParcelleChange = (e) => {
         const loadData = async () => {
             setIsLoading(true);
             setError(null);
+            await fetchCurrentUser();
             await fetchBrands();
             await fetchFilterOptions();
             await fetchParcelleFilterOptions();
@@ -995,7 +1107,7 @@ const handleParcelleChange = (e) => {
         };
 
         loadData();
-    }, [activeTab, fetchDashboardStats, fetchVehicles, fetchBrands, fetchFilterOptions, fetchParcelles, fetchParcelleFilterOptions, fetchLocations, fetchUsers, pagination.current_page, parcellePagination.current_page, locationPagination.current_page, userPagination.current_page]);
+    }, [activeTab, fetchCurrentUser, fetchDashboardStats, fetchVehicles, fetchBrands, fetchFilterOptions, fetchParcelles, fetchParcelleFilterOptions, fetchLocations, fetchUsers, pagination.current_page, parcellePagination.current_page, locationPagination.current_page, userPagination.current_page]);
 
     const tabs = [
         { id: 'dashboard', name: 'Tableau de bord', icon: BarChart3 },
@@ -1025,6 +1137,15 @@ const handleParcelleChange = (e) => {
                     <p className="text-gray-600">Bienvenue, <strong>{user?.name || 'Administrateur'}</strong>. Gérez votre plateforme.</p>
                 </div>
                 <div className="mt-4 sm:mt-0 flex items-center space-x-4">
+                    {currentUser && (
+                        <button
+                            onClick={openProfileDetailModal}
+                            className="flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition duration-200"
+                        >
+                            <User className="w-4 h-4 mr-2" />
+                            {currentUser.name}
+                        </button>
+                    )}
                     <button
                         onClick={logout}
                         className="flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-red-600 hover:bg-red-700 transition duration-200"
@@ -1135,7 +1256,7 @@ const handleParcelleChange = (e) => {
                     {/* Pagination */}
                     {vehicles.length > 0 && (
                         <div className="p-4">
-                            <Pagination pagination={pagination} fetchVehicles={fetchVehicles} />
+                            <Pagination pagination={pagination} onPageChange={fetchVehicles} />
                         </div>
                     )}
                 </div>
@@ -1203,7 +1324,7 @@ const handleParcelleChange = (e) => {
                     {/* Pagination */}
                     {parcelles.length > 0 && (
                         <div className="p-4">
-                            <Pagination pagination={parcellePagination} fetchVehicles={fetchParcelles} />
+                            <Pagination pagination={parcellePagination} onPageChange={fetchParcelles} />
                         </div>
                     )}
                 </div>
@@ -1271,7 +1392,7 @@ const handleParcelleChange = (e) => {
                     {/* Pagination */}
                     {locations.length > 0 && (
                         <div className="p-4">
-                            <Pagination pagination={locationPagination} fetchVehicles={fetchLocations} />
+                            <Pagination pagination={locationPagination} onPageChange={fetchLocations} />
                         </div>
                     )}
                 </div>
@@ -1343,7 +1464,7 @@ const handleParcelleChange = (e) => {
                     {/* Pagination */}
                     {users.length > 0 && (
                         <div className="p-4">
-                            <Pagination pagination={userPagination} fetchVehicles={fetchUsers} />
+                            <Pagination pagination={userPagination} onPageChange={fetchUsers} />
                         </div>
                     )}
                 </div>
@@ -1408,6 +1529,7 @@ const handleParcelleChange = (e) => {
                     formErrors={locationFormErrors}
                     formSubmitting={locationFormSubmitting}
                     closeModal={closeLocationModal}
+                    filterOptions={parcelleFilterOptions} // ✅ AJOUTÉ
                     handleChange={handleLocationChange}
                     submitLocation={submitLocation}
                 />
@@ -1438,6 +1560,7 @@ const handleParcelleChange = (e) => {
                 <UserDetailModal
                     user={selectedUser}
                     onClose={closeUserDetailModal}
+                    onEdit={() => openEditUserModal(selectedUser)}
                 />
             )}
 
@@ -1458,6 +1581,28 @@ const handleParcelleChange = (e) => {
                 message={toast.message}
                 type={toast.type}
             />
+
+            {/* Modales du Profil */}
+            {isProfileModalOpen && (
+                <ProfileModal
+                    isOpen={isProfileModalOpen}
+                    onClose={closeProfileModal}
+                    user={currentUser}
+                    formData={profileFormData}
+                    formErrors={profileFormErrors}
+                    formSubmitting={profileFormSubmitting}
+                    handleChange={handleProfileChange}
+                    submitProfile={submitProfile}
+                />
+            )}
+
+            {showProfileDetail && currentUser && (
+                <ProfileDetailModal
+                    user={currentUser}
+                    onClose={closeProfileDetailModal}
+                    onEdit={openProfileModal}
+                />
+            )}
         </div>
     );
 }

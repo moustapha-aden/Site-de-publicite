@@ -6,6 +6,7 @@ use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use App\Models\Vehicule;
 use App\Models\Location;
+use App\Models\Parcelle;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -23,5 +24,7 @@ class DatabaseSeeder extends Seeder
         ]);
         Vehicule::factory(50)->create();
         Location::factory(50)->create();
+        Parcelle::factory(50)->create();
+
     }
 }

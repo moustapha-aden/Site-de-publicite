@@ -10,7 +10,7 @@ import Home from "./components/Home";
 import Vehicles from "./components/Vehicles";
 import Properties from "./components/Properties";
 import Rentals from "./components/Rentals";
-import Admin from "./components/admin";
+import Admin from "./components/Admin";
 import LoginPage from "./components/LoginPage";
 
 function App() {
@@ -26,6 +26,14 @@ function App() {
               <Route path="/properties" element={<Properties />} />
               <Route path="/rentals" element={<Rentals />} />
               <Route path="/login" element={<LoginPage />} />
+              <Route
+                path="/admin"
+                element={
+                  <ProtectedRoute>
+                    <Admin />
+                  </ProtectedRoute>
+                }
+              />
               <Route
                 path="/admin/dashboard"
                 element={

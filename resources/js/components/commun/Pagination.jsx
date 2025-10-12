@@ -1,6 +1,6 @@
 import React from 'react';
 
-const Pagination = ({ pagination, fetchVehicles }) => {
+const Pagination = ({ pagination, onPageChange }) => {
 
     const { current_page, last_page } = pagination;
 
@@ -13,7 +13,7 @@ const Pagination = ({ pagination, fetchVehicles }) => {
         <div className="flex justify-center items-center gap-2">
             {/* Bouton Précédent */}
             <button
-                onClick={() => fetchVehicles(current_page - 1)}
+                onClick={() => onPageChange(current_page - 1)}
                 disabled={current_page === 1}
                 className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
             >
@@ -39,7 +39,7 @@ const Pagination = ({ pagination, fetchVehicles }) => {
                     return (
                         <button
                             key={page}
-                            onClick={() => fetchVehicles(page)}
+                            onClick={() => onPageChange(page)}
                             className={`px-3 py-2 text-sm font-medium rounded-lg ${
                                 page === current_page
                                     ? 'bg-blue-600 text-white'
@@ -54,7 +54,7 @@ const Pagination = ({ pagination, fetchVehicles }) => {
 
             {/* Bouton Suivant */}
             <button
-                onClick={() => fetchVehicles(current_page + 1)}
+                onClick={() => onPageChange(current_page + 1)}
                 disabled={current_page === last_page}
                 className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
             >

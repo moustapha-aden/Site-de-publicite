@@ -8,7 +8,9 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
@@ -169,6 +171,103 @@ class AuthController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Erreur lors du rafraîchissement du token',
+                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * Update the authenticated user's profile.
+     */
+    public function profile(Request $request): JsonResponse
+    {
+        try {
+            $user = $request->user();
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Utilisateur non authentifié',
+                ], Response::HTTP_UNAUTHORIZED);
+            }
+
+            $validator = Validator::make($request->all(), [
+                'name' => 'required|string|max:255',
+                'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
+                'current_password' => 'nullable|string|min:8',
+                'password' => 'nullable|string|min:8|confirmed',
+            ], [
+                'name.required' => 'Le nom est obligatoire.',
+                'name.string' => 'Le nom doit être une chaîne de caractères.',
+                'name.max' => 'Le nom ne peut pas dépasser 255 caractères.',
+                'email.required' => 'L\'email est obligatoire.',
+                'email.email' => 'L\'email doit être une adresse email valide.',
+                'email.unique' => 'Cette adresse email est déjà utilisée.',
+                'current_password.min' => 'Le mot de passe actuel doit contenir au moins 8 caractères.',
+                'password.min' => 'Le nouveau mot de passe doit contenir au moins 8 caractères.',
+                'password.confirmed' => 'La confirmation du nouveau mot de passe ne correspond pas.',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Erreur de validation',
+                    'errors' => $validator->errors()
+                ], Response::HTTP_UNPROCESSABLE_ENTITY);
+            }
+
+            // Vérifier le mot de passe actuel si un nouveau mot de passe est fourni
+            if ($request->filled('password')) {
+                if (!$request->filled('current_password')) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Le mot de passe actuel est requis pour changer le mot de passe',
+                        'errors' => [
+                            'current_password' => ['Le mot de passe actuel est obligatoire.']
+                        ]
+                    ], Response::HTTP_UNPROCESSABLE_ENTITY);
+                }
+
+                if (!Hash::check($request->current_password, $user->password)) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Le mot de passe actuel est incorrect',
+                        'errors' => [
+                            'current_password' => ['Le mot de passe actuel est incorrect.']
+                        ]
+                    ], Response::HTTP_UNPROCESSABLE_ENTITY);
+                }
+            }
+
+            // Mettre à jour les informations
+            $updateData = [
+                'name' => $request->name,
+                'email' => $request->email,
+            ];
+
+            if ($request->filled('password')) {
+                $updateData['password'] = Hash::make($request->password);
+            }
+
+            $user->update($updateData);
+
+            Log::info('User profile updated', [
+                'user_id' => $user->id,
+                'email' => $user->email,
+                'ip' => $request->ip()
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Profil mis à jour avec succès',
+                'data' => new UserResource($user->fresh())
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Profile update error: ' . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur lors de la mise à jour du profil',
                 'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
