@@ -20,7 +20,7 @@ const Properties = () => {
 
     const formatPrice = (price) => {
         if (price === undefined || price === null) return 'N/A';
-        return `€${Number(price).toLocaleString('fr-FR')}`;
+        return `${Number(price).toLocaleString('fr-FR')} Fdj`;
     };
 
     if (loading && parcelles.length === 0) {

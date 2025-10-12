@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Location;
 use App\Models\Parcelle;
 use App\Models\User;
 use App\Models\Vehicule;
@@ -21,6 +22,8 @@ class DashboardController extends Controller
         // Calcul des statistiques
         $totalVehicules = Vehicule::count();
         $totalParcelles = Parcelle::count();
+        $totalLocations = DB::table('locations')->where('status', 'active')->count();
+        $totalUtilisateurs = User::count();
         // // Exemple: Nous allons supposer une table "Reparation"
         // $reparationsEnCours = DB::table('reparations')->where('status', 'en_cours')->count();
         // ✅ La remplacer par une valeur par défaut de 0
@@ -30,7 +33,8 @@ class DashboardController extends Controller
             // Clés utilisées par le Frontend React (voir ci-dessous)
             'total_vehicules' => $totalVehicules,
             'total_parcelles' => $totalParcelles,
-            'reparations_en_cours' => $reparationsEnCours,
+            'total_locations' => $totalLocations,
+            'total_utilisateurs' => $totalUtilisateurs,
             // etc.
         ];
 

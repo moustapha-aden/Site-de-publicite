@@ -5,6 +5,8 @@ use App\Http\Controllers\BrandController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\VehiculeController;
 use App\Http\Controllers\ParcelleController;
+use App\Http\Controllers\LocationController;
+use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -39,6 +41,14 @@ Route::prefix('parcelles')->group(function () {
     Route::get('/filter/options', [ParcelleController::class, 'filterOptions']);
 });
 
+// Public location routes (read-only)
+Route::prefix('locations')->group(function () {
+    Route::get('/', [LocationController::class, 'index']);
+    Route::get('/{location}', [LocationController::class, 'show']);
+    Route::get('/filter/options', [LocationController::class, 'filterOptions']);
+});
+
+
 Route::get('/brand', [BrandController::class, 'index']); // ⬅️ DÉPLACER ICI
 
 // Protected routes
@@ -72,4 +82,21 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/{parcelle}', [ParcelleController::class, 'update']);
         Route::delete('/{parcelle}', [ParcelleController::class, 'destroy']);
     });
+
+    // Protected location routes (full CRUD)
+    Route::prefix('locations')->group(function () {
+        Route::post('/', [LocationController::class, 'store']);
+        Route::put('/{location}', [LocationController::class, 'update']);
+        Route::delete('/{location}', [LocationController::class, 'destroy']);
+    });
+
+    // Protected user routes (full CRUD)
+    Route::prefix('users')->group(function () {
+        Route::get('/', [UserController::class, 'index']);
+        Route::post('/', [UserController::class, 'store']);
+        Route::get('/{user}', [UserController::class, 'show']);
+        Route::put('/{user}', [UserController::class, 'update']);
+        Route::delete('/{user}', [UserController::class, 'destroy']);
+    });
+
 });

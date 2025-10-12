@@ -52,6 +52,59 @@ namespace App\Models{
  * @property-read string|null $formatted_contact
  * @property-read string $formatted_price
  * @property-read array $photo_urls
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Location active()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Location byLocation(string $location)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Location byType(string $type)
+ * @method static \Database\Factories\LocationFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Location featured()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Location inactive()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Location newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Location newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Location priceRange(?float $min = null, ?float $max = null)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Location query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Location search(string $search)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Location surfaceRange(?float $min = null, ?float $max = null)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Location whereBathrooms($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Location whereBedrooms($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Location whereContactNumber($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Location whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Location whereDescription($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Location whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Location whereIsFeatured($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Location whereLocation($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Location wherePhotos($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Location wherePrice($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Location whereRooms($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Location whereStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Location whereSurface($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Location whereTitle($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Location whereType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Location whereUpdatedAt($value)
+ */
+	class Location extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
+ * @property int $id
+ * @property string $title
+ * @property string $location
+ * @property numeric $price
+ * @property string $type
+ * @property numeric|null $surface
+ * @property int|null $rooms
+ * @property int|null $bedrooms
+ * @property int|null $bathrooms
+ * @property string|null $description
+ * @property array<array-key, mixed>|null $photos
+ * @property string|null $contact_number
+ * @property string $status
+ * @property bool $is_featured
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read string|null $formatted_contact
+ * @property-read string $formatted_price
+ * @property-read array $photo_urls
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Parcelle active()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Parcelle byLocation(string $location)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Parcelle byType(string $type)
@@ -104,6 +157,7 @@ namespace App\Models{
  * @property int $id
  * @property string $name
  * @property string $email
+ * @property string $status
  * @property \Illuminate\Support\Carbon|null $email_verified_at
  * @property string $password
  * @property string|null $remember_token
@@ -124,6 +178,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User wherePassword($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereRememberToken($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereUpdatedAt($value)
  */
 	class User extends \Eloquent {}
