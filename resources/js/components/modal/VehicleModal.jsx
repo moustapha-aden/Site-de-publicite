@@ -19,13 +19,13 @@ const VehicleModal = ({
             <div className="absolute inset-0 bg-black/40" onClick={closeModal}></div>
 
             {/* Modal Content */}
-            <div className="relative bg-white w-full max-w-2xl rounded-xl shadow-xl border p-6 mx-4">
-                <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-xl font-semibold text-gray-900">
+            <div className="relative bg-white w-full max-w-2xl rounded-xl shadow-xl border p-4 sm:p-6 mx-2 sm:mx-4 max-h-[90vh] overflow-y-auto">
+                <div className="flex items-center justify-between mb-4 sticky top-0 bg-white pb-2">
+                    <h3 className="text-lg sm:text-xl font-semibold text-gray-900">
                         {modalMode === 'create' ? 'Ajouter un véhicule' : 'Éditer le véhicule'}
                     </h3>
                     <button onClick={closeModal} className="p-2 rounded-lg hover:bg-gray-100">
-                        <X className="h-5 w-5 text-gray-500" />
+                        <X className="h-4 w-4 sm:h-5 sm:w-5 text-gray-500" />
                     </button>
                 </div>
 
@@ -37,7 +37,7 @@ const VehicleModal = ({
                 )}
 
                 <form onSubmit={submitVehicle} className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         {/* Marque */}
                         <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">

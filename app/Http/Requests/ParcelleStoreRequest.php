@@ -23,7 +23,7 @@ class ParcelleStoreRequest extends FormRequest
         return [
             'title' => 'required|string|max:255',
             'location' => 'required|string|max:255',
-            'price' => 'required|numeric|min:0|max:99999999.99',
+            'price' => 'required|numeric|min:0',
             'type' => [
                 'required',
                 'string',

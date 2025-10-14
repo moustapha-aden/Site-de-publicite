@@ -8,8 +8,11 @@ import FilterBar from './commun/FilterBar';
 import VehicleCard from './modal/VehicleCard';
 import Pagination from './commun/Pagination';
 import { formatPrice, getFuelIcon } from '../utils';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const Vehicles = () => {
+    const location = useLocation();
+    const navigate = useNavigate();
     const { isAuthenticated, token } = useAuth();
     const {
         vehicles, loading, error, API_URL,
@@ -45,9 +48,21 @@ const Vehicles = () => {
 
     };
 
+    // Appliquer les filtres depuis l'URL au chargement
     useEffect(() => {
+        const urlParams = new URLSearchParams(location.search);
+        const urlFilters = {};
+
+        // Appliquer tous les filtres présents dans l'URL
+        for (const [key, value] of urlParams.entries()) {
+            if (value !== '') {
+                urlFilters[key] = value;
+                handleFilterChange(key, value);
+            }
+        }
+
         fetchBrands();
-    }, []);
+    }, [location.search]);
 
     if (loading && vehicles.length === 0) {
         return (
@@ -60,9 +75,9 @@ const Vehicles = () => {
     return (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             {/* Header */}
-            <div className="mb-8 flex items-start justify-between gap-4">
+            <div className="mb-8 flex flex-col sm:flex-row items-start justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold text-gray-900 mb-2">Catalogue de Véhicules</h1>
+                    <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Catalogue de Véhicules</h1>
                     <p className="text-gray-600">
                         Découvrez notre sélection de {pagination.total} véhicules
                     </p>
@@ -70,10 +85,11 @@ const Vehicles = () => {
                 {isAuthenticated && (
                     <button
                         onClick={openCreateModal}
-                        className="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                        className="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm sm:text-base"
                     >
                         <Plus className="h-4 w-4" />
-                        Ajouter un véhicule
+                        <span className="hidden sm:inline">Ajouter un véhicule</span>
+                        <span className="sm:hidden">Ajouter</span>
                     </button>
                 )}
             </div>
@@ -96,7 +112,7 @@ const Vehicles = () => {
             )}
 
             {/* Vehicles Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8">
                 {vehicles.map(vehicle => (
                     <VehicleCard
                         key={vehicle.id}

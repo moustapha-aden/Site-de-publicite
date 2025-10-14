@@ -36,24 +36,24 @@ const DetailModal = ({ vehicule, onClose, formatPrice }) => {
 
     return (
         <div
-            className="fixed inset-0 z-50 overflow-y-auto bg-gray-900 bg-opacity-75 flex items-center justify-center p-4 transition-opacity"
+            className="fixed inset-0 z-50 overflow-y-auto bg-gray-900 bg-opacity-75 flex items-center justify-center p-2 sm:p-4 transition-opacity"
             onClick={onClose}
         >
             <div
-                className="bg-white rounded-xl shadow-2xl w-full max-w-lg p-6 transform transition-all max-h-[90vh] overflow-y-auto"
+                className="bg-white rounded-xl shadow-2xl w-full max-w-lg p-4 sm:p-6 transform transition-all max-h-[95vh] overflow-y-auto"
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className="flex justify-between items-start border-b pb-3 mb-4 sticky top-0 bg-white">
-                    <h3 className="text-2xl font-extrabold text-blue-700 flex items-center">
-                        <DollarSign className="w-5 h-5 mr-2" />
+                    <h3 className="text-lg sm:text-2xl font-extrabold text-blue-700 flex items-center">
+                        <DollarSign className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
                         {localFormatPrice(vehicule.price)}
                     </h3>
                     <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition p-1">
-                        <X className="w-6 h-6" />
+                        <X className="w-5 h-5 sm:w-6 sm:h-6" />
                     </button>
                 </div>
 
-                <h4 className="text-xl font-bold text-gray-900 mb-4">{vehicule.brand} {vehicule.model}</h4>
+                <h4 className="text-lg sm:text-xl font-bold text-gray-900 mb-4">{vehicule.brand} {vehicule.model}</h4>
 
                 <div className="space-y-4 text-gray-700">
 

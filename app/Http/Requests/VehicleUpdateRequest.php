@@ -32,7 +32,7 @@ class VehicleUpdateRequest extends FormRequest
             ],
             'model' => 'sometimes|required|string|max:255',
             'year' => 'sometimes|required|integer|min:1900|max:' . (date('Y') + 1),
-            'price' => 'sometimes|required|numeric|min:0|max:999999.99',
+            'price' => 'sometimes|required|numeric|min:0',
             'mileage' => 'sometimes|required|integer|min:0|max:999999',
             'fuel' => [
                 'sometimes',
@@ -76,7 +76,6 @@ class VehicleUpdateRequest extends FormRequest
             'year.max' => 'L\'année ne peut pas être dans le futur.',
             'price.required' => 'Le prix est obligatoire.',
             'price.min' => 'Le prix doit être positif.',
-            'price.max' => 'Le prix est trop élevé.',
             'mileage.required' => 'Le kilométrage est obligatoire.',
             'mileage.min' => 'Le kilométrage ne peut pas être négatif.',
             'fuel.required' => 'Le type de carburant est obligatoire.',

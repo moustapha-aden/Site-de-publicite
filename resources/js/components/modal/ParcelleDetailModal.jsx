@@ -1,36 +1,35 @@
-import React, { useState } from 'react';
-import { X, MapPin, Home, DollarSign, Square, Bed, Bath, Phone, ChevronLeft, ChevronRight, MessageCircle } from 'lucide-react';
+import React from 'react';
+import { X, MapPin, Home, DollarSign, Calendar, Users, ChevronLeft, ChevronRight, Phone, MessageCircle } from 'lucide-react';
 
 const ParcelleDetailModal = ({ parcelle, onClose, formatPrice }) => {
-    const [currentImageIndex, setCurrentImageIndex] = useState(0);
+    const [currentPhotoIndex, setCurrentPhotoIndex] = React.useState(0);
 
-    const nextImage = () => {
-        if (parcelle.photo_urls && parcelle.photo_urls.length > 0) {
-            setCurrentImageIndex((prev) =>
-                prev === parcelle.photo_urls.length - 1 ? 0 : prev + 1
-            );
+    const localFormatPrice = formatPrice || ((price) => new Intl.NumberFormat('fr-FR', {
+        style: 'currency',
+        currency: 'EUR',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+    }).format(price));
+
+    if (!parcelle) return null;
+
+    const photoUrls = parcelle.photo_urls || [];
+    const totalPhotos = photoUrls.length;
+    const currentPhotoUrl = totalPhotos > 0 ? photoUrls[currentPhotoIndex] : null;
+
+    const getStatusColor = (status) => {
+        switch (status) {
+            case 'active': return 'bg-green-100 text-green-800';
+            case 'inactive': return 'bg-red-100 text-red-800';
+            default: return 'bg-gray-100 text-gray-800';
         }
     };
 
-    const prevImage = () => {
-        if (parcelle.photo_urls && parcelle.photo_urls.length > 0) {
-            setCurrentImageIndex((prev) =>
-                prev === 0 ? parcelle.photo_urls.length - 1 : prev - 1
-            );
-        }
-    };
-
-    const handleCall = () => {
-        if (parcelle.contact_number) {
-            window.open(`tel:${parcelle.contact_number}`, '_self');
-        }
-    };
-
-    const handleWhatsApp = () => {
-        if (parcelle.contact_number) {
-            const message = `Bonjour, je suis intéressé par la parcelle "${parcelle.title}" située à ${parcelle.location}. Pourriez-vous me donner plus d'informations ?`;
-            const whatsappUrl = `https://wa.me/${parcelle.contact_number.replace(/[^\d]/g, '')}?text=${encodeURIComponent(message)}`;
-            window.open(whatsappUrl, '_blank');
+    const getStatusLabel = (status) => {
+        switch (status) {
+            case 'active': return 'Disponible';
+            case 'inactive': return 'Non disponible';
+            default: return status || 'Inconnu';
         }
     };
 
@@ -58,176 +57,177 @@ const ParcelleDetailModal = ({ parcelle, onClose, formatPrice }) => {
         return labels[type] || type;
     };
 
+    const goToPrevious = () => {
+        setCurrentPhotoIndex((prevIndex) =>
+            prevIndex === 0 ? totalPhotos - 1 : prevIndex - 1
+        );
+    };
+
+    const goToNext = () => {
+        setCurrentPhotoIndex((prevIndex) =>
+            prevIndex === totalPhotos - 1 ? 0 : prevIndex + 1
+        );
+    };
+
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-                <div className="p-6 border-b border-gray-200 flex items-center justify-between">
-                    <h2 className="text-xl font-semibold">Détails de la parcelle</h2>
-                    <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
-                        <X className="h-6 w-6" />
+        <div
+            className="fixed inset-0 z-50 overflow-y-auto bg-gray-900 bg-opacity-75 flex items-center justify-center p-2 sm:p-4 transition-opacity"
+            onClick={onClose}
+        >
+            <div
+                className="bg-white rounded-xl shadow-2xl w-full max-w-lg p-4 sm:p-6 transform transition-all max-h-[95vh] overflow-y-auto"
+                onClick={(e) => e.stopPropagation()}
+            >
+                <div className="flex justify-between items-start border-b pb-3 mb-4 sticky top-0 bg-white">
+                    <h3 className="text-lg sm:text-2xl font-extrabold text-blue-700 flex items-center">
+                        <DollarSign className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+                        {localFormatPrice(parcelle.price)}
+                    </h3>
+                    <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition p-1">
+                        <X className="w-5 h-5 sm:w-6 sm:h-6" />
                     </button>
                 </div>
 
-                <div className="p-6">
-                    {/* Images Gallery */}
-                    {parcelle.photo_urls && parcelle.photo_urls.length > 0 && (
-                        <div className="mb-6">
-                            <div className="relative">
-                                <img
-                                    src={parcelle.photo_urls[currentImageIndex]}
-                                    alt={`${parcelle.title} - Image ${currentImageIndex + 1}`}
-                                    className="w-full h-64 md:h-80 object-cover rounded-lg"
-                                />
+                <h4 className="text-lg sm:text-xl font-bold text-gray-900 mb-4">{parcelle.title}</h4>
 
-                                {/* Navigation buttons */}
-                                {parcelle.photo_urls.length > 1 && (
+                <div className="space-y-4 text-gray-700">
+
+                    {/* SECTION CARROUSEL DE PHOTOS */}
+                    <div className="relative mb-6">
+                        {currentPhotoUrl ? (
+                            <>
+                                <img
+                                    src={currentPhotoUrl}
+                                    alt={parcelle.title}
+                                    className="w-full h-64 sm:h-80 object-cover rounded-lg"
+                                />
+                                {totalPhotos > 1 && (
                                     <>
                                         <button
-                                            onClick={prevImage}
-                                            className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-70 transition-all"
+                                            onClick={goToPrevious}
+                                            className="absolute left-3 top-1/2 transform -translate-y-1/2 p-2 bg-black/50 text-white rounded-full hover:bg-black/70 transition"
+                                            aria-label="Photo précédente"
                                         >
-                                            <ChevronLeft className="h-6 w-6" />
+                                            <ChevronLeft className="w-6 h-6" />
                                         </button>
                                         <button
-                                            onClick={nextImage}
-                                            className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-70 transition-all"
+                                            onClick={goToNext}
+                                            className="absolute right-3 top-1/2 transform -translate-y-1/2 p-2 bg-black/50 text-white rounded-full hover:bg-black/70 transition"
+                                            aria-label="Photo suivante"
                                         >
-                                            <ChevronRight className="h-6 w-6" />
+                                            <ChevronRight className="w-6 h-6" />
                                         </button>
+
+                                        {/* Indicateur de position */}
+                                        <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 flex gap-1">
+                                            {photoUrls.map((_, index) => (
+                                                <div
+                                                    key={index}
+                                                    className={`h-2 w-2 rounded-full cursor-pointer transition-colors ${
+                                                        index === currentPhotoIndex ? 'bg-blue-500' : 'bg-gray-300 hover:bg-gray-400'
+                                                    }`}
+                                                    onClick={() => setCurrentPhotoIndex(index)}
+                                                    aria-label={`Aller à la photo ${index + 1}`}
+                                                ></div>
+                                            ))}
+                                        </div>
                                     </>
                                 )}
-
-                                {/* Image counter */}
-                                {parcelle.photo_urls.length > 1 && (
-                                    <div className="absolute bottom-2 right-2 bg-black bg-opacity-50 text-white px-2 py-1 rounded text-sm">
-                                        {currentImageIndex + 1} / {parcelle.photo_urls.length}
-                                    </div>
-                                )}
+                            </>
+                        ) : (
+                            <div className="w-full h-64 sm:h-80 bg-gray-200 rounded-lg flex items-center justify-center">
+                                <Home className="h-16 w-16 text-gray-400" />
                             </div>
+                        )}
+                    </div>
 
-                            {/* Thumbnail navigation */}
-                            {parcelle.photo_urls.length > 1 && (
-                                <div className="flex gap-2 mt-4 overflow-x-auto">
-                                    {parcelle.photo_urls.map((photo, index) => (
-                                        <button
-                                            key={index}
-                                            onClick={() => setCurrentImageIndex(index)}
-                                            className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-all ${
-                                                index === currentImageIndex
-                                                    ? 'border-blue-500'
-                                                    : 'border-gray-200 hover:border-gray-300'
-                                            }`}
-                                        >
-                                            <img
-                                                src={photo}
-                                                alt={`Thumbnail ${index + 1}`}
-                                                className="w-full h-full object-cover"
-                                            />
-                                        </button>
-                                    ))}
-                                </div>
-                            )}
+                    {/* Informations principales */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="flex items-center gap-2">
+                            <MapPin className="w-5 h-5 text-blue-600" />
+                            <span className="font-medium">Localisation:</span>
+                            <span>{parcelle.location}</span>
                         </div>
-                    )}
 
-                    {/* Title and Type */}
-                    <div className="mb-6">
-                        <div className="flex items-start justify-between mb-3">
-                            <h3 className="text-2xl font-bold text-gray-900">{parcelle.title}</h3>
-                            <span className={`px-3 py-1 text-sm font-medium rounded-full ${getTypeColor(parcelle.type)}`}>
+                        {parcelle.surface && (
+                            <div className="flex items-center gap-2">
+                                <Home className="w-5 h-5 text-green-600" />
+                                <span className="font-medium">Surface:</span>
+                                <span>{parcelle.surface} m²</span>
+                            </div>
+                        )}
+
+                        <div className="flex items-center gap-2">
+                            <span className={`px-2 py-1 text-xs font-medium rounded-full ${getTypeColor(parcelle.type)}`}>
                                 {getTypeLabel(parcelle.type)}
                             </span>
                         </div>
 
-                        <div className="flex items-center gap-1 text-gray-600 mb-4">
-                            <MapPin className="h-5 w-5" />
-                            <span className="text-lg">{parcelle.location}</span>
-                        </div>
-
-                        <div className="flex items-center gap-2 mb-4">
-                            {/* <DollarSign className="h-6 w-6 text-green-600" /> */}
-                            <span className="text-3xl font-bold text-gray-900">
-                                {formatPrice(parcelle.price)}
+                        <div className="flex items-center gap-2">
+                            <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(parcelle.status)}`}>
+                                {getStatusLabel(parcelle.status)}
                             </span>
                         </div>
                     </div>
 
-                    {/* Details Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                        {parcelle.surface && (
-                            <div className="bg-gray-50 p-4 rounded-lg">
-                                <div className="flex items-center gap-2 mb-2">
-                                    <Square className="h-5 w-5 text-gray-600" />
-                                    <span className="font-medium text-gray-900">Surface</span>
-                                </div>
-                                <p className="text-lg font-semibold text-gray-700">{parcelle.surface} m²</p>
-                            </div>
-                        )}
-
-                        {parcelle.rooms && (
-                            <div className="bg-gray-50 p-4 rounded-lg">
-                                <div className="flex items-center gap-2 mb-2">
-                                    <Home className="h-5 w-5 text-gray-600" />
-                                    <span className="font-medium text-gray-900">Pièces</span>
-                                </div>
-                                <p className="text-lg font-semibold text-gray-700">{parcelle.rooms}</p>
-                            </div>
-                        )}
-
-                        {parcelle.bedrooms && (
-                            <div className="bg-gray-50 p-4 rounded-lg">
-                                <div className="flex items-center gap-2 mb-2">
-                                    <Bed className="h-5 w-5 text-gray-600" />
-                                    <span className="font-medium text-gray-900">Chambres</span>
-                                </div>
-                                <p className="text-lg font-semibold text-gray-700">{parcelle.bedrooms}</p>
-                            </div>
-                        )}
-
-                        {parcelle.bathrooms && (
-                            <div className="bg-gray-50 p-4 rounded-lg">
-                                <div className="flex items-center gap-2 mb-2">
-                                    <Bath className="h-5 w-5 text-gray-600" />
-                                    <span className="font-medium text-gray-900">Salles de bain</span>
-                                </div>
-                                <p className="text-lg font-semibold text-gray-700">{parcelle.bathrooms}</p>
-                            </div>
-                        )}
-                    </div>
-
                     {/* Description */}
                     {parcelle.description && (
-                        <div className="mb-6">
-                            <h4 className="text-lg font-semibold text-gray-900 mb-3">Description</h4>
-                            <p className="text-gray-700 leading-relaxed">{parcelle.description}</p>
+                        <div>
+                            <h5 className="font-semibold text-gray-900 mb-2">Description</h5>
+                            <p className="text-gray-600 text-sm leading-relaxed">
+                                {parcelle.description}
+                            </p>
                         </div>
                     )}
 
-                    {/* Contact */}
-                    {parcelle.formatted_contact && (
-                        <div className="bg-blue-50 p-4 rounded-lg">
-                            <div className="flex items-center gap-2 mb-3">
-                                <Phone className="h-5 w-5 text-blue-600" />
-                                <span className="font-medium text-gray-900">Contact</span>
-                            </div>
-                            <p className="text-lg font-semibold text-blue-700 mb-4">{parcelle.formatted_contact}</p>
+                    {/* Informations supplémentaires */}
+                    <div className="bg-gray-50 rounded-lg p-4">
+                        <h5 className="font-semibold text-gray-900 mb-3">Informations détaillées</h5>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                            {parcelle.created_at && (
+                                <div className="flex items-center gap-2">
+                                    <Calendar className="w-4 h-4 text-gray-500" />
+                                    <span className="text-gray-600">Ajouté le:</span>
+                                    <span>{new Date(parcelle.created_at).toLocaleDateString('fr-FR')}</span>
+                                </div>
+                            )}
+                        </div>
+                    </div>
 
-                            {/* Action buttons */}
-                            <div className="flex gap-3">
-                                <button
-                                    onClick={handleCall}
-                                    className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
+                    {/* Boutons d'action */}
+                    <div className="flex gap-3 pt-4 border-t">
+                        <button
+                            onClick={onClose}
+                            className="flex-1 bg-gray-600 text-white py-2 px-4 rounded-lg hover:bg-gray-700 transition-colors"
+                        >
+                            Fermer
+                        </button>
+                    </div>
+
+                    {/* Section Contact */}
+                    {parcelle.contact_number && (
+                        <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+                            <h5 className="font-semibold text-gray-900 mb-3">Contacter le propriétaire</h5>
+                            <div className="flex flex-col sm:flex-row gap-3">
+                                {/* Bouton WhatsApp */}
+                                <a
+                                    href={`https://wa.me/${parcelle.contact_number.replace(/\D/g, '')}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-full shadow-md transition"
                                 >
-                                    <Phone className="h-4 w-4" />
-                                    Appeler
-                                </button>
-                                <button
-                                    onClick={handleWhatsApp}
-                                    className="flex items-center gap-2 bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors"
-                                >
-                                    <MessageCircle className="h-4 w-4" />
+                                    <MessageCircle className="w-5 h-5" />
                                     WhatsApp
-                                </button>
+                                </a>
+
+                                {/* Bouton Appel */}
+                                <a
+                                    href={`tel:${parcelle.contact_number}`}
+                                    className="flex items-center justify-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-full shadow-md transition"
+                                >
+                                    <Phone className="w-5 h-5" />
+                                    Appeler
+                                </a>
                             </div>
                         </div>
                     )}

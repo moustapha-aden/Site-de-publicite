@@ -34,7 +34,7 @@ const FilterBar = ({
 
             {/* Advanced Filters */}
             {showFilters && (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 pt-4 border-t">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 pt-4 border-t">
                     {/* Brand Filter */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -91,20 +91,20 @@ const FilterBar = ({
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                             Prix (€)
                         </label>
-                        <div className="flex gap-2">
+                        <div className="flex flex-col sm:flex-row gap-2">
                             <input
                                 type="number"
                                 placeholder="Min"
                                 value={filters.price_min}
                                 onChange={(e) => handleFilterChange('price_min', e.target.value)}
-                                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                             />
                             <input
                                 type="number"
                                 placeholder="Max"
                                 value={filters.price_max}
                                 onChange={(e) => handleFilterChange('price_max', e.target.value)}
-                                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                             />
                         </div>
                     </div>
@@ -114,20 +114,24 @@ const FilterBar = ({
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                             Année
                         </label>
-                        <div className="flex gap-2">
+                        <div className="flex flex-col sm:flex-row gap-2">
                             <input
                                 type="number"
                                 placeholder="Min"
                                 value={filters.year_min}
                                 onChange={(e) => handleFilterChange('year_min', e.target.value)}
-                                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                                min="1900"
+                                max={new Date().getFullYear() + 1}
                             />
                             <input
                                 type="number"
                                 placeholder="Max"
                                 value={filters.year_max}
                                 onChange={(e) => handleFilterChange('year_max', e.target.value)}
-                                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                                min="1900"
+                                max={new Date().getFullYear() + 1}
                             />
                         </div>
                     </div>
@@ -137,11 +141,11 @@ const FilterBar = ({
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                             Type
                         </label>
-                        <div className="flex gap-2">
+                        <div className="flex flex-col sm:flex-row gap-2">
                             <select
                                 value={filters.is_featured}
                                 onChange={(e) => handleFilterChange('is_featured', e.target.value)}
-                                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                             >
                                 <option value="">Tous</option>
                                 <option value="true">En vedette</option>
@@ -149,7 +153,7 @@ const FilterBar = ({
                             <select
                                 value={filters.is_new}
                                 onChange={(e) => handleFilterChange('is_new', e.target.value)}
-                                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                             >
                                 <option value="">Tous</option>
                                 <option value="true">Neufs</option>
@@ -163,11 +167,11 @@ const FilterBar = ({
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                             Trier par
                         </label>
-                        <div className="flex gap-2">
+                        <div className="flex flex-col sm:flex-row gap-2">
                             <select
                                 value={filters.sort_by}
                                 onChange={(e) => handleFilterChange('sort_by', e.target.value)}
-                                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                             >
                                 <option value="created_at">Date d'ajout</option>
                                 <option value="price">Prix</option>
@@ -178,7 +182,7 @@ const FilterBar = ({
                             <select
                                 value={filters.sort_order}
                                 onChange={(e) => handleFilterChange('sort_order', e.target.value)}
-                                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                             >
                                 <option value="desc">Décroissant</option>
                                 <option value="asc">Croissant</option>

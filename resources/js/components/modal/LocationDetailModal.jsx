@@ -1,92 +1,14 @@
-import React, { useState } from 'react';
-import { X, MapPin, Home, DollarSign, Square, Bed, Bath, Phone, ChevronLeft, ChevronRight, MessageCircle, Calendar, Star } from 'lucide-react';
+import React from 'react';
+import { X, MapPin, Home, DollarSign, Calendar, Users, ChevronLeft, ChevronRight, Phone, MessageCircle } from 'lucide-react';
 
-const LocationDetailModal = ({ location, onClose, API_URL }) => {
-    const [currentImageIndex, setCurrentImageIndex] = useState(0);
+const LocationDetailModal = ({ location, onClose }) => {
+    const [currentPhotoIndex, setCurrentPhotoIndex] = React.useState(0);
 
     if (!location) return null;
 
-    const getLocationImages = () => {
-        if (location.photo_urls && location.photo_urls.length > 0) {
-            return location.photo_urls.map(photo => {
-                // Vérifier si c'est une URL externe (picsum.photos)
-                if (photo.startsWith('http')) {
-                    return photo;
-                }
-                // Sinon, construire l'URL complète
-                return `${API_URL.replace('/api', '')}${photo}`;
-            });
-        }
-        if (location.photos && Array.isArray(location.photos) && location.photos.length > 0) {
-            return location.photos.map(photo => {
-                // Vérifier si c'est une URL externe
-                if (photo.startsWith('http')) {
-                    return photo;
-                }
-                // Construire l'URL complète pour les chemins locaux
-                return `${API_URL.replace('/api', '')}/storage/${photo}`;
-            });
-        }
-        return [];
-    };
-
-    const locationImages = getLocationImages();
-
-    const nextImage = () => {
-        if (locationImages.length > 0) {
-            setCurrentImageIndex((prev) =>
-                prev === locationImages.length - 1 ? 0 : prev + 1
-            );
-        }
-    };
-
-    const prevImage = () => {
-        if (locationImages.length > 0) {
-            setCurrentImageIndex((prev) =>
-                prev === 0 ? locationImages.length - 1 : prev - 1
-            );
-        }
-    };
-
-    const handleCall = () => {
-        if (location.contact_number) {
-            window.open(`tel:${location.contact_number}`, '_self');
-        }
-    };
-
-    const handleWhatsApp = () => {
-        if (location.contact_number) {
-            const message = `Bonjour, je suis intéressé par la location "${location.title}" située à ${location.location}. Pourriez-vous me donner plus d'informations ?`;
-            const whatsappUrl = `https://wa.me/${location.contact_number.replace(/[^\d]/g, '')}?text=${encodeURIComponent(message)}`;
-            window.open(whatsappUrl, '_blank');
-        }
-    };
-
-    const getTypeColor = (type) => {
-        switch (type) {
-            case 'maison': return 'bg-blue-100 text-blue-800';
-            case 'appartement': return 'bg-purple-100 text-purple-800';
-            case 'villa': return 'bg-yellow-100 text-yellow-800';
-            case 'bureau': return 'bg-gray-100 text-gray-800';
-            case 'commerce': return 'bg-red-100 text-red-800';
-            default: return 'bg-gray-100 text-gray-800';
-        }
-    };
-
-    const getTypeLabel = (type) => {
-        const labels = {
-            'maison': 'Maison',
-            'appartement': 'Appartement',
-            'villa': 'Villa',
-            'bureau': 'Bureau',
-            'commerce': 'Commerce'
-        };
-        return labels[type] || type;
-    };
-
-    const getStatusText = (status) => {
-        return status === 'active' ? 'Disponible' : 'Réservé / Inactif';
-    };
+    const photoUrls = location.photo_urls || [];
+    const totalPhotos = photoUrls.length;
+    const currentPhotoUrl = totalPhotos > 0 ? photoUrls[currentPhotoIndex] : null;
 
     const getStatusColor = (status) => {
         return status === 'active'
@@ -94,194 +16,210 @@ const LocationDetailModal = ({ location, onClose, API_URL }) => {
             : 'bg-red-100 text-red-800';
     };
 
+    const getStatusText = (status) => {
+        return status === 'active' ? 'Disponible' : 'Réservé / Inactif';
+    };
+
+    const goToPrevious = () => {
+        setCurrentPhotoIndex((prevIndex) =>
+            prevIndex === 0 ? totalPhotos - 1 : prevIndex - 1
+        );
+    };
+
+    const goToNext = () => {
+        setCurrentPhotoIndex((prevIndex) =>
+            prevIndex === totalPhotos - 1 ? 0 : prevIndex + 1
+        );
+    };
+
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-                <div className="p-6 border-b border-gray-200 flex items-center justify-between">
-                    <h2 className="text-xl font-semibold">Détails de la location</h2>
-                    <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
-                        <X className="h-6 w-6" />
+        <div
+            className="fixed inset-0 z-50 overflow-y-auto bg-gray-900 bg-opacity-75 flex items-center justify-center p-2 sm:p-4 transition-opacity"
+            onClick={onClose}
+        >
+            <div
+                className="bg-white rounded-xl shadow-2xl w-full max-w-lg p-4 sm:p-6 transform transition-all max-h-[95vh] overflow-y-auto"
+                onClick={(e) => e.stopPropagation()}
+            >
+                <div className="flex justify-between items-start border-b pb-3 mb-4 sticky top-0 bg-white">
+                    <h3 className="text-lg sm:text-2xl font-extrabold text-blue-700 flex items-center">
+                        <DollarSign className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+                        {location.formatted_price}
+                        <span className="text-sm text-gray-500 ml-1">/ mois</span>
+                    </h3>
+                    <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition p-1">
+                        <X className="w-5 h-5 sm:w-6 sm:h-6" />
                     </button>
                 </div>
 
-                <div className="p-6">
-                    {/* Images Gallery */}
-                    {locationImages.length > 0 && (
-                        <div className="mb-6">
-                            <div className="relative">
-                                <img
-                                    src={locationImages[currentImageIndex]}
-                                    alt={`${location.title} - Image ${currentImageIndex + 1}`}
-                                    className="w-full h-64 md:h-80 object-cover rounded-lg"
-                                />
+                <h4 className="text-lg sm:text-xl font-bold text-gray-900 mb-4">{location.title}</h4>
 
-                                {/* Navigation buttons */}
-                                {locationImages.length > 1 && (
+                <div className="space-y-4 text-gray-700">
+
+                    {/* SECTION CARROUSEL DE PHOTOS */}
+                    <div className="relative mb-6">
+                        {currentPhotoUrl ? (
+                            <>
+                                <img
+                                    src={currentPhotoUrl}
+                                    alt={location.title}
+                                    className="w-full h-64 sm:h-80 object-cover rounded-lg"
+                                />
+                                {totalPhotos > 1 && (
                                     <>
                                         <button
-                                            onClick={prevImage}
-                                            className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-70 transition-all"
+                                            onClick={goToPrevious}
+                                            className="absolute left-3 top-1/2 transform -translate-y-1/2 p-2 bg-black/50 text-white rounded-full hover:bg-black/70 transition"
+                                            aria-label="Photo précédente"
                                         >
-                                            <ChevronLeft className="h-6 w-6" />
+                                            <ChevronLeft className="w-6 h-6" />
                                         </button>
                                         <button
-                                            onClick={nextImage}
-                                            className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-70 transition-all"
+                                            onClick={goToNext}
+                                            className="absolute right-3 top-1/2 transform -translate-y-1/2 p-2 bg-black/50 text-white rounded-full hover:bg-black/70 transition"
+                                            aria-label="Photo suivante"
                                         >
-                                            <ChevronRight className="h-6 w-6" />
+                                            <ChevronRight className="w-6 h-6" />
                                         </button>
+
+                                        {/* Indicateur de position */}
+                                        <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 flex gap-1">
+                                            {photoUrls.map((_, index) => (
+                                                <div
+                                                    key={index}
+                                                    className={`h-2 w-2 rounded-full cursor-pointer transition-colors ${
+                                                        index === currentPhotoIndex ? 'bg-blue-500' : 'bg-gray-300 hover:bg-gray-400'
+                                                    }`}
+                                                    onClick={() => setCurrentPhotoIndex(index)}
+                                                    aria-label={`Aller à la photo ${index + 1}`}
+                                                ></div>
+                                            ))}
+                                        </div>
                                     </>
                                 )}
-
-                                {/* Image counter */}
-                                {locationImages.length > 1 && (
-                                    <div className="absolute bottom-2 right-2 bg-black bg-opacity-50 text-white px-2 py-1 rounded text-sm">
-                                        {currentImageIndex + 1} / {locationImages.length}
-                                    </div>
-                                )}
+                            </>
+                        ) : (
+                            <div className="w-full h-64 sm:h-80 bg-gray-200 rounded-lg flex items-center justify-center">
+                                <Home className="h-16 w-16 text-gray-400" />
                             </div>
-
-                            {/* Thumbnail navigation */}
-                            {locationImages.length > 1 && (
-                                <div className="flex gap-2 mt-4 overflow-x-auto">
-                                    {locationImages.map((photo, index) => (
-                                        <button
-                                            key={index}
-                                            onClick={() => setCurrentImageIndex(index)}
-                                            className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-all ${
-                                                index === currentImageIndex
-                                                    ? 'border-blue-500'
-                                                    : 'border-gray-200 hover:border-gray-300'
-                                            }`}
-                                        >
-                                            <img
-                                                src={photo}
-                                                alt={`Thumbnail ${index + 1}`}
-                                                className="w-full h-full object-cover"
-                                            />
-                                        </button>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-                    )}
-
-                    {/* Title and Type */}
-                    <div className="mb-6">
-                        <div className="flex items-start justify-between mb-3">
-                            <h3 className="text-2xl font-bold text-gray-900">{location.title}</h3>
-                            <div className="flex gap-2">
-                                <span className={`px-3 py-1 text-sm font-medium rounded-full ${getTypeColor(location.type)}`}>
-                                    {getTypeLabel(location.type)}
-                                </span>
-                                {location.is_featured && (
-                                    <span className="flex items-center gap-1 px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-medium">
-                                        <Star className="h-4 w-4" />
-                                        En vedette
-                                    </span>
-                                )}
-                                <span className={`px-3 py-1 text-sm font-medium rounded-full ${getStatusColor(location.status)}`}>
-                                    {getStatusText(location.status)}
-                                </span>
-                            </div>
-                        </div>
-
-                        <div className="flex items-center gap-1 text-gray-600 mb-4">
-                            <MapPin className="h-5 w-5" />
-                            <span className="text-lg">{location.location}</span>
-                        </div>
-
-                        <div className="flex items-center gap-2 mb-4">
-                            <DollarSign className="h-6 w-6 text-green-600" />
-                            <span className="text-3xl font-bold text-gray-900">
-                                {location.formatted_price}
-                            </span>
-                            <span className="text-lg text-gray-500">/ mois</span>
-                        </div>
+                        )}
                     </div>
 
-                    {/* Details Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                    {/* Informations principales */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="flex items-center gap-2">
+                            <MapPin className="w-5 h-5 text-blue-600" />
+                            <span className="font-medium">Localisation:</span>
+                            <span>{location.location}</span>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                            <Home className="w-5 h-5 text-green-600" />
+                            <span className="font-medium">Type:</span>
+                            <span className="capitalize">{location.type}</span>
+                        </div>
+
                         {location.surface && (
-                            <div className="bg-gray-50 p-4 rounded-lg">
-                                <div className="flex items-center gap-2 mb-2">
-                                    <Square className="h-5 w-5 text-gray-600" />
-                                    <span className="font-medium text-gray-900">Surface</span>
-                                </div>
-                                <p className="text-lg font-semibold text-gray-700">{location.surface} m²</p>
+                            <div className="flex items-center gap-2">
+                                <span className="font-medium">Surface:</span>
+                                <span>{location.surface} m²</span>
                             </div>
                         )}
 
                         {location.rooms && (
-                            <div className="bg-gray-50 p-4 rounded-lg">
-                                <div className="flex items-center gap-2 mb-2">
-                                    <Home className="h-5 w-5 text-gray-600" />
-                                    <span className="font-medium text-gray-900">Pièces</span>
-                                </div>
-                                <p className="text-lg font-semibold text-gray-700">{location.rooms}</p>
+                            <div className="flex items-center gap-2">
+                                <span className="font-medium">Pièces:</span>
+                                <span>{location.rooms}</span>
                             </div>
                         )}
 
                         {location.bedrooms && (
-                            <div className="bg-gray-50 p-4 rounded-lg">
-                                <div className="flex items-center gap-2 mb-2">
-                                    <Bed className="h-5 w-5 text-gray-600" />
-                                    <span className="font-medium text-gray-900">Chambres</span>
-                                </div>
-                                <p className="text-lg font-semibold text-gray-700">{location.bedrooms}</p>
+                            <div className="flex items-center gap-2">
+                                <span className="font-medium">Chambres:</span>
+                                <span>{location.bedrooms}</span>
                             </div>
                         )}
 
                         {location.bathrooms && (
-                            <div className="bg-gray-50 p-4 rounded-lg">
-                                <div className="flex items-center gap-2 mb-2">
-                                    <Bath className="h-5 w-5 text-gray-600" />
-                                    <span className="font-medium text-gray-900">Salles de bain</span>
-                                </div>
-                                <p className="text-lg font-semibold text-gray-700">{location.bathrooms}</p>
+                            <div className="flex items-center gap-2">
+                                <span className="font-medium">Salles de bain:</span>
+                                <span>{location.bathrooms}</span>
+                            </div>
+                        )}
+
+                        <div className="flex items-center gap-2">
+                            <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(location.status)}`}>
+                                {getStatusText(location.status)}
+                            </span>
+                        </div>
+
+                        {location.is_featured && (
+                            <div className="flex items-center gap-2">
+                                <span className="px-2 py-1 text-xs font-medium bg-yellow-100 text-yellow-800 rounded-full">
+                                    En vedette
+                                </span>
                             </div>
                         )}
                     </div>
 
                     {/* Description */}
                     {location.description && (
-                        <div className="mb-6">
-                            <h4 className="text-lg font-semibold text-gray-900 mb-3">Description</h4>
-                            <p className="text-gray-700 leading-relaxed">{location.description}</p>
+                        <div>
+                            <h5 className="font-semibold text-gray-900 mb-2">Description</h5>
+                            <p className="text-gray-600 text-sm leading-relaxed">
+                                {location.description}
+                            </p>
                         </div>
                     )}
 
-                    {/* Date de création */}
-                    <div className="flex items-center gap-2 text-sm text-gray-500 mb-6">
-                        <Calendar className="h-4 w-4" />
-                        <span>Ajouté le {new Date(location.created_at).toLocaleDateString('fr-FR')}</span>
+                    {/* Informations supplémentaires */}
+                    <div className="bg-gray-50 rounded-lg p-4">
+                        <h5 className="font-semibold text-gray-900 mb-3">Informations détaillées</h5>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                            {location.created_at && (
+                                <div className="flex items-center gap-2">
+                                    <Calendar className="w-4 h-4 text-gray-500" />
+                                    <span className="text-gray-600">Ajouté le:</span>
+                                    <span>{new Date(location.created_at).toLocaleDateString('fr-FR')}</span>
+                                </div>
+                            )}
+                        </div>
                     </div>
 
-                    {/* Contact */}
-                    {location.contact_number && (
-                        <div className="bg-blue-50 p-4 rounded-lg">
-                            <div className="flex items-center gap-2 mb-3">
-                                <Phone className="h-5 w-5 text-blue-600" />
-                                <span className="font-medium text-gray-900">Contact</span>
-                            </div>
-                            <p className="text-lg font-semibold text-blue-700 mb-4">{location.formatted_contact || location.contact_number}</p>
+                    {/* Boutons d'action */}
+                    <div className="flex gap-3 pt-4 border-t">
+                        <button
+                            onClick={onClose}
+                            className="flex-1 bg-gray-600 text-white py-2 px-4 rounded-lg hover:bg-gray-700 transition-colors"
+                        >
+                            Fermer
+                        </button>
+                    </div>
 
-                            {/* Action buttons */}
-                            <div className="flex gap-3">
-                                <button
-                                    onClick={handleCall}
-                                    className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
+                    {/* Section Contact */}
+                    {location.contact_number && (
+                        <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+                            <h5 className="font-semibold text-gray-900 mb-3">Contacter le propriétaire</h5>
+                            <div className="flex flex-col sm:flex-row gap-3">
+                                {/* Bouton WhatsApp */}
+                                <a
+                                    href={`https://wa.me/${location.contact_number.replace(/\D/g, '')}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-full shadow-md transition"
                                 >
-                                    <Phone className="h-4 w-4" />
-                                    Appeler
-                                </button>
-                                <button
-                                    onClick={handleWhatsApp}
-                                    className="flex items-center gap-2 bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors"
-                                >
-                                    <MessageCircle className="h-4 w-4" />
+                                    <MessageCircle className="w-5 h-5" />
                                     WhatsApp
-                                </button>
+                                </a>
+
+                                {/* Bouton Appel */}
+                                <a
+                                    href={`tel:${location.contact_number}`}
+                                    className="flex items-center justify-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-full shadow-md transition"
+                                >
+                                    <Phone className="w-5 h-5" />
+                                    Appeler
+                                </a>
                             </div>
                         </div>
                     )}

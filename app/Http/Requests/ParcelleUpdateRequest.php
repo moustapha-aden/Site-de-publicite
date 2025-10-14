@@ -23,7 +23,7 @@ class ParcelleUpdateRequest extends FormRequest
         return [
             'title' => 'sometimes|required|string|max:255',
             'location' => 'sometimes|required|string|max:255',
-            'price' => 'sometimes|required|numeric|min:0|max:99999999.99',
+            'price' => 'sometimes|required|numeric|min:0',
             'type' => [
                 'sometimes',
                 'required',

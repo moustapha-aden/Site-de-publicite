@@ -12,7 +12,7 @@ const VehicleCard = ({
     openDetailModal,
     openEditModal
 }) => {
-    // Déterminez le composant Icône de carburant
+    // Déterminez le composant icône de carburant
     const FuelIconComponent = getFuelIcon(vehicle.fuel);
 
     // CORRECTION: Gérer les photos (photo_urls vient de l'accessor Laravel)
