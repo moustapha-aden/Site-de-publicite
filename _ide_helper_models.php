@@ -33,6 +33,19 @@ namespace App\Models{
 
 namespace App\Models{
 /**
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ContactMessage byEmail($email)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ContactMessage bySubject($subject)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ContactMessage newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ContactMessage newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ContactMessage query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ContactMessage read()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ContactMessage unread()
+ */
+	class ContactMessage extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
  * @property int $id
  * @property string $title
  * @property string $location
@@ -108,6 +121,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Parcelle active()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Parcelle byLocation(string $location)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Parcelle byType(string $type)
+ * @method static \Database\Factories\ParcelleFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Parcelle featured()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Parcelle inactive()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Parcelle newModelQuery()

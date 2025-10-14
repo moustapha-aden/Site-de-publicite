@@ -48,7 +48,6 @@ Route::prefix('locations')->group(function () {
     Route::get('/filter/options', [LocationController::class, 'filterOptions']);
 });
 
-
 Route::get('/brand', [BrandController::class, 'index']); // ⬅️ DÉPLACER ICI
 
 // Protected routes

@@ -15,6 +15,7 @@ export default function Header() {
         { name: 'Véhicules', href: '/vehicles', current: location.pathname === '/vehicles' },
         { name: 'Parcelles à Vendre', href: '/properties', current: location.pathname === '/properties' },
         { name: 'Locations Disponibles', href: '/rentals', current: location.pathname === '/rentals' },
+        { name: 'Contact', href: '/contact', current: location.pathname === '/contact' },
     ];
 
     const toggleMobileMenu = () => {

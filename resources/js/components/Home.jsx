@@ -40,6 +40,13 @@ export default function Home() {
         navigate(`/vehicles${queryString ? `?${queryString}` : ''}`);
     };
 
+    // Fonctions de navigation avec filtres
+    const navigateToContact = () => {
+        const params = new URLSearchParams();
+        const queryString = params.toString();
+        navigate(`/contact${queryString ? `?${queryString}` : ''}`);
+    };
+
     const navigateToProperties = () => navigate('/properties');
     const navigateToRentals = () => navigate('/rentals');
 
@@ -513,7 +520,7 @@ export default function Home() {
                                 Parcourir les offres
                             </button>
                             <button
-                                onClick={() => window.open('mailto:contact@automarket.com', '_blank')}
+                                onClick={navigateToContact}
                                 className="border-2 border-white text-white px-10 py-4 rounded-full hover:bg-white hover:text-gray-900 transition-all duration-300 transform hover:scale-105 text-lg font-bold"
                             >
                                 Nous contacter
