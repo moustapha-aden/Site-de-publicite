@@ -21,7 +21,10 @@ const ProfileDetailModal = ({ user, onClose, onEdit }) => {
             default: return status;
         }
     };
-
+    const handlupdate=()=>{
+        onEdit();
+        onClose();
+    }
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-lg max-w-lg w-full max-h-[90vh] overflow-y-auto">
@@ -108,7 +111,7 @@ const ProfileDetailModal = ({ user, onClose, onEdit }) => {
                     {/* Actions */}
                     <div className="flex gap-3 justify-center">
                         <button
-                            onClick={onEdit}
+                            onClick={handlupdate}
                             className="flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
                         >
                             <Edit className="h-4 w-4" />
