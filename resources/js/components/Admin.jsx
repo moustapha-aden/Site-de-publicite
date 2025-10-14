@@ -49,7 +49,7 @@ const getStatusColor = (status) => {
 
 const formatPrice = (price) => {
     if (price === undefined || price === null) return 'N/A';
-    return `€${Number(price).toLocaleString('fr-FR')}`;
+    return `${Number(price).toLocaleString('fr-FR')} fdj`;
 };
 
 // --- Composant Principal Admin ---
@@ -1116,7 +1116,7 @@ const handleParcelleChange = (e) => {
         { id: 'locations', name: 'Locations', icon: Building },
         { id: 'brands', name: 'Marques', icon: Tag },
         { id: 'users', name: 'Utilisateurs', icon: Users },
-        { id: 'settings', name: 'Paramètres', icon: Settings },
+        // { id: 'settings', name: 'Paramètres', icon: Settings },
     ];
 
     if (isLoading && (activeTab === 'dashboard' || activeTab === 'vehicles' || activeTab === 'parcelles' || activeTab === 'locations' || activeTab === 'users')) {
