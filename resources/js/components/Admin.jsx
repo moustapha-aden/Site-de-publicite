@@ -1233,7 +1233,7 @@ const handleParcelleChange = (e) => {
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{formatPrice(vehicle.price)}</td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(vehicle.status)}`}>
-                                                {vehicle.status === 'active' ? 'Actif' : vehicle.status === 'inactive' ? 'Inactif' : vehicle.status || 'Inconnu'}
+                                                {vehicle.status === 'active' ? 'Dispo' : vehicle.status === 'inactive' ? 'No Dispo' : vehicle.status || 'Inconnu'}
                                             </span>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -1301,7 +1301,7 @@ const handleParcelleChange = (e) => {
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{formatPrice(parcelle.price)}</td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(parcelle.status)}`}>
-                                                {parcelle.status === 'active' ? 'Actif' : parcelle.status === 'inactive' ? 'Inactif' : parcelle.status || 'Inconnu'}
+                                                {parcelle.status === 'active' ? 'Disponible' : parcelle.status === 'inactive' ? 'InDisponible' : parcelle.status || 'Inconnu'}
                                             </span>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -1369,7 +1369,7 @@ const handleParcelleChange = (e) => {
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{formatPrice(location.price)}</td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(location.status)}`}>
-                                                {location.status === 'active' ? 'Actif' : location.status === 'inactive' ? 'Inactif' : location.status || 'Inconnu'}
+                                                {location.status === 'active' ? 'Disponible' : location.status === 'inactive' ? 'InDisponible' : location.status || 'Inconnu'}
                                             </span>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -1436,8 +1436,8 @@ const handleParcelleChange = (e) => {
                                                 user.status === 'inactive' ? 'bg-gray-100 text-gray-800' :
                                                 'bg-red-100 text-red-800'
                                             }`}>
-                                                {user.status === 'active' ? 'Actif' :
-                                                 user.status === 'inactive' ? 'Inactif' :
+                                                {user.status === 'active' ? 'Disponible' :
+                                                 user.status === 'inactive' ? 'InDisponible' :
                                                  user.status === 'suspended' ? 'Suspendu' : user.status}
                                             </span>
                                         </td>

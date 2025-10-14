@@ -15,8 +15,8 @@ const UserDetailModal = ({ user, onClose, onEdit }) => {
 
     const getStatusLabel = (status) => {
         switch (status) {
-            case 'active': return 'Actif';
-            case 'inactive': return 'Inactif';
+            case 'active': return 'Disponible';
+            case 'inactive': return 'InDisponible';
             case 'suspended': return 'Suspendu';
             default: return status;
         }

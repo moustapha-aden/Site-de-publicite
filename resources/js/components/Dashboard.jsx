@@ -123,11 +123,11 @@ const Dashboard = ({ userData, handleLogout }) => {
 
                     {/* Grille de Statistiques (Fixée pour Admin) */}
                     <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-                        {/* ⚠️ Assurez-vous que le backend renvoie bien ces clés : total_vehicules, reparations_en_cours, nouveaux_clients, techniciens_actifs */}
+                        {/* ⚠️ Assurez-vous que le backend renvoie bien ces clés : total_vehicules, reparations_en_cours, nouveaux_clients, techniciens_Disponibles */}
                         <StatCard icon={Car} title="Total Véhicules" value={stats.total_vehicules || 0} color="indigo" />
                         <StatCard icon={Wrench} title="Réparations en Cours" value={stats.reparations_en_cours || 0} color="amber" />
                         <StatCard icon={Users} title="Nouveaux Clients (Mois)" value={stats.nouveaux_clients || 0} color="emerald" />
-                        <StatCard icon={User} title="Techniciens Actifs" value={stats.techniciens_actifs || 0} color="pink" />
+                        <StatCard icon={User} title="Techniciens Disponibles" value={stats.techniciens_Disponibles || 0} color="pink" />
                     </div>
 
                     {/* Section rapide d'actions (Fixée pour Admin) */}

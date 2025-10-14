@@ -121,8 +121,8 @@ const UserModal = ({
                                 formErrors.status ? 'border-red-500' : 'border-gray-300'
                             }`}
                         >
-                            <option value="active">Actif</option>
-                            <option value="inactive">Inactif</option>
+                            <option value="active">Disponible</option>
+                            <option value="inactive">InDisponible</option>
                             <option value="suspended">Suspendu</option>
                         </select>
                         {formErrors.status && (

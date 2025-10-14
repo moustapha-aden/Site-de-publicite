@@ -17,7 +17,7 @@ const LocationDetailModal = ({ location, onClose }) => {
     };
 
     const getStatusText = (status) => {
-        return status === 'active' ? 'Disponible' : 'Réservé / Inactif';
+        return status === 'active' ? 'Disponible' : 'Réservé / InDisponible';
     };
 
     const goToPrevious = () => {

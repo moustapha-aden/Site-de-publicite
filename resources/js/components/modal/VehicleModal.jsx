@@ -137,8 +137,8 @@ const VehicleModal = ({
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Statut</label>
                             <select name="status" value={formData.status || 'active'} onChange={handleChange} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                                <option value="active">Actif</option>
-                                <option value="inactive">Inactif</option>
+                                <option value="active">Disponible</option>
+                                <option value="inactive">InDisponible</option>
                             </select>
                             {formErrors.status && <p className="text-xs text-red-600 mt-1">{formErrors.status[0]}</p>}
                         </div>

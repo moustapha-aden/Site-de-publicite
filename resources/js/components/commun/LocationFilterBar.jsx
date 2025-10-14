@@ -168,7 +168,7 @@ const LocationFilterBar = ({
                                 <option value="">Tous les statuts</option>
                                 {filterOptions.statuses?.map((status) => (
                                     <option key={status} value={status}>
-                                        {status === 'active' ? 'Actif' : 'Inactif'}
+                                        {status === 'active' ? 'Disponible' : 'InDisponible'}
                                     </option>
                                 ))}
                             </select>

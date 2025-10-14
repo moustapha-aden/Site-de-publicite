@@ -27,6 +27,7 @@ class VehicleResource extends JsonResource
             'description' => $this->description,
             'is_featured' => $this->is_featured,
             'is_new' => $this->is_new,
+            'status' => $this->status,
 
             // IMPORTANT: Retourner les photos avec les URLs complètes
             'photos' => $this->photos, // Le tableau brut

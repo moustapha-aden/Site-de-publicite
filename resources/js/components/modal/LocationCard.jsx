@@ -9,7 +9,7 @@ const LocationCard = ({
     openEditModal
 }) => {
     const getStatusText = (status) => {
-        return status === 'active' ? 'Disponible' : 'Réservé / Inactif';
+        return status === 'active' ? 'Disponible' : 'Réservé / InDisponible';
     };
 
     const getStatusColor = (status) => {
