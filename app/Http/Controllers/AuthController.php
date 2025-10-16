@@ -40,7 +40,7 @@ class AuthController extends Controller
 
             $user = Auth::user();
 
-            // ✅ Crée un vrai token Sanctum
+            // ✅ Crée un token Sanctum
             $token = $user->createToken('auth_token')->plainTextToken;
 
             Log::info('User logged in successfully', [
