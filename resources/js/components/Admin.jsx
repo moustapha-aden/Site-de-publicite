@@ -52,6 +52,22 @@ const formatPrice = (price) => {
     return `${Number(price).toLocaleString('fr-FR')} fdj`;
 };
 
+// Fonction pour gérer l'affichage des photos des véhicules
+const getVehicleImage = (vehicle) => {
+    // Option 1: Si vous utilisez l'accessor photo_urls du modèle
+    if (vehicle.photo_urls && vehicle.photo_urls.length > 0) {
+        return vehicle.photo_urls[0];
+    }
+
+    // Option 2: Si vous recevez directement les photos
+    if (vehicle.photos && Array.isArray(vehicle.photos) && vehicle.photos.length > 0) {
+        // Construire l'URL complète
+        return `${API_BASE_URL.replace('/api', '')}/storage/${vehicle.photos[0]}`;
+    }
+
+    return null;
+};
+
 // --- Composant Principal Admin ---
 export default function Admin() {
     const { user, logout, token } = useAuth();
@@ -1217,6 +1233,7 @@ const handleParcelleChange = (e) => {
                         <table className="min-w-full divide-y divide-gray-200">
                             <thead className="bg-gray-50">
                                 <tr>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Photo</th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Véhicule</th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Prix</th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
@@ -1224,8 +1241,35 @@ const handleParcelleChange = (e) => {
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
-                                {vehicles.length > 0 ? vehicles.map(vehicle => (
+                                {vehicles.length > 0 ? vehicles.map(vehicle => {
+                                    const vehicleImage = getVehicleImage(vehicle);
+                                    return (
                                     <tr key={vehicle.id}>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <div className="relative w-16 h-12 overflow-hidden rounded-lg">
+                                                {vehicleImage ? (
+                                                    <img
+                                                        src={vehicleImage}
+                                                        alt={`${vehicle.brand} ${vehicle.model}`}
+                                                        className="w-full h-full object-cover object-center"
+                                                        onError={(e) => {
+                                                            // Fallback si l'image ne charge pas
+                                                            e.target.style.display = 'none';
+                                                            const fallbackDiv = e.target.nextElementSibling;
+                                                            if (fallbackDiv) {
+                                                                fallbackDiv.style.display = 'flex';
+                                                            }
+                                                        }}
+                                                    />
+                                                ) : null}
+                                                {/* Fallback pour image manquante ou erreur */}
+                                                <div
+                                                    className={`absolute inset-0 bg-gray-200 flex items-center justify-center ${vehicleImage ? 'hidden' : 'flex'}`}
+                                                >
+                                                    <Car className="h-6 w-6 text-gray-400" />
+                                                </div>
+                                            </div>
+                                        </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="text-sm font-medium text-gray-900">{vehicle.brand || 'N/A'} {vehicle.model || 'N/A'}</div>
                                             <div className="text-sm text-gray-500">ID: {vehicle.id}</div>
@@ -1244,9 +1288,10 @@ const handleParcelleChange = (e) => {
                                             </div>
                                         </td>
                                     </tr>
-                                )) : (
+                                    );
+                                }) : (
                                     <tr>
-                                        <td colSpan="4" className="px-6 py-4 text-center text-gray-500">Aucun véhicule trouvé.</td>
+                                        <td colSpan="5" className="px-6 py-4 text-center text-gray-500">Aucun véhicule trouvé.</td>
                                     </tr>
                                 )}
                             </tbody>
