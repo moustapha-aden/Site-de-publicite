@@ -13,7 +13,7 @@ import Rentals from "./components/Rentals";
 import Contact from "./components/Contact";
 import Admin from "./components/Admin";
 import LoginPage from "./components/LoginPage";
-
+import ForgotPasswordPage from "./components/ForgotPasswordPage";
 function App() {
   return (
     <AuthProvider>
@@ -28,6 +28,7 @@ function App() {
               <Route path="/rentals" element={<Rentals />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/login" element={<LoginPage />} />
+              <Route path="/forgot-password" element={<ForgotPasswordPage />} />
               <Route
                 path="/admin"
                 element={

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from "axios";
 import { Mail, Lock, CheckCircle, AlertCircle, Info, ArrowRight, ArrowLeft, Car, Wrench, Users, LayoutDashboard, LogOut } from 'lucide-react';
+import ForgotPassword from './auth/ForgotPassword';
 
 // --- Configuration et Utilitaires ---
 
@@ -49,6 +50,7 @@ const LoginForm = ({ handleSuccessfulLogin,}) => {
   const [statusMessage, setStatusMessage] = useState(null); // Pour les messages de session réussis
   const [errorMessage, setErrorMessage] = useState(null); // Pour les erreurs (y compris les erreurs de validation simulées)
   const [isReady, setIsReady] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
 
   // Animation 'fade-in'
   useEffect(() => {
@@ -95,6 +97,11 @@ const LoginForm = ({ handleSuccessfulLogin,}) => {
       setIsSubmitting(false);
     }
   };
+
+  // Si on affiche le formulaire de mot de passe oublié
+  if (showForgotPassword) {
+    return <ForgotPassword onBackToLogin={() => setShowForgotPassword(false)} />;
+  }
 
   return (
     <div className="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -186,7 +193,7 @@ const LoginForm = ({ handleSuccessfulLogin,}) => {
                     Se souvenir de moi
                   </span>
                 </label>
-                <a href="#" onClick={(e) => e.preventDefault()} className="text-sm font-medium text-indigo-600 hover:text-indigo-700 transition duration-200">
+                <a href="#" onClick={(e) => { e.preventDefault(); setShowForgotPassword(true); }} className="text-sm font-medium text-indigo-600 hover:text-indigo-700 transition duration-200">
                   Mot de passe oublié ?
                 </a>
               </div>

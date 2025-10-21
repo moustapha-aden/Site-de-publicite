@@ -43,9 +43,6 @@ const UserDetailModal = ({ user, onClose, onEdit }) => {
                             <span className={`px-3 py-1 text-sm font-medium rounded-full ${getStatusColor(user.status)}`}>
                                 {getStatusLabel(user.status)}
                             </span>
-                            <span className="px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded-full">
-                                ID: {user.id}
-                            </span>
                         </div>
                     </div>
 

@@ -33,19 +33,6 @@ namespace App\Models{
 
 namespace App\Models{
 /**
- * @method static \Illuminate\Database\Eloquent\Builder<static>|ContactMessage byEmail($email)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|ContactMessage bySubject($subject)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|ContactMessage newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|ContactMessage newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|ContactMessage query()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|ContactMessage read()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|ContactMessage unread()
- */
-	class ContactMessage extends \Eloquent {}
-}
-
-namespace App\Models{
-/**
  * @property int $id
  * @property string $title
  * @property string $location
@@ -174,6 +161,7 @@ namespace App\Models{
  * @property string $status
  * @property \Illuminate\Support\Carbon|null $email_verified_at
  * @property string $password
+ * @property string|null $plain_password
  * @property string|null $remember_token
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
@@ -191,6 +179,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User wherePassword($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User wherePlainPassword($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereRememberToken($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereUpdatedAt($value)

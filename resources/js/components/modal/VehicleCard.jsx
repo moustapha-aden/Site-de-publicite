@@ -36,29 +36,32 @@ const VehicleCard = ({
     return (
         <div className="relative bg-white rounded-lg shadow hover:shadow-lg transition overflow-hidden">
             {/* Image du véhicule */}
-            <div className="aspect-w-16 aspect-h-9 w-full overflow-hidden rounded-t-lg">
+            <div className="relative w-full h-48 overflow-hidden rounded-t-lg">
                 {vehicleImage ? (
                     <img
                         src={vehicleImage}
                         alt={`${vehicle.brand} ${vehicle.model}`}
-                        className="h-full w-full object-cover object-center"
+                        className="w-full h-full object-cover object-center transition-transform duration-300 hover:scale-105"
                         onError={(e) => {
                             // Fallback si l'image ne charge pas
                             e.target.style.display = 'none';
-                            e.target.parentElement.innerHTML = `
-                                <div class="h-full w-full bg-gray-200 flex items-center justify-center">
-                                    <svg class="h-16 w-16 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
-                                    </svg>
-                                </div>
-                            `;
+                            const fallbackDiv = e.target.nextElementSibling;
+                            if (fallbackDiv) {
+                                fallbackDiv.style.display = 'flex';
+                            }
                         }}
                     />
-                ) : (
-                    <div className="h-full w-full bg-gray-200 flex items-center justify-center">
-                        <Car className="h-16 w-16 text-gray-400" />
+                ) : null}
+
+                {/* Fallback pour image manquante ou erreur */}
+                <div
+                    className={`absolute inset-0 bg-gray-200 flex items-center justify-center ${vehicleImage ? 'hidden' : 'flex'}`}
+                >
+                    <div className="text-center">
+                        <Car className="h-16 w-16 text-gray-400 mx-auto mb-2" />
+                        <p className="text-sm text-gray-500">Image non disponible</p>
                     </div>
-                )}
+                </div>
             </div>
 
             {/* Contenu principal */}

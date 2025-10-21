@@ -185,7 +185,7 @@ class LocationController extends Controller
             // Supprimer les photos associées
             if ($location->photos) {
                 $photos = is_string($location->photos) ? json_decode($location->photos, true) : $location->photos;
-                if (is_array($photos)) {
+                if (is_array($photos) && !empty($photos)) {
                     $this->deletePhotos($photos);
                 }
             }

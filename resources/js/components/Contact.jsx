@@ -20,20 +20,6 @@ export default function Contact() {
             bgColor: "bg-blue-100",
             action: "mailto:contact@automarket.dj"
         },
-        {
-            icon: MapPin,
-            title: "Adresse",
-            details: ["Cité aviation", "Djibouti-Ville, Djibouti"],
-            color: "text-red-600",
-            bgColor: "bg-red-100"
-        },
-        {
-            icon: Clock,
-            title: "Horaires",
-            details: ["Lun - Ven: 8h00 - 18h00", "Sam: 9h00 - 16h00"],
-            color: "text-purple-600",
-            bgColor: "bg-purple-100"
-        }
     ];
 
     // Extraction des informations d'adresse
@@ -111,39 +97,6 @@ export default function Contact() {
                             Ouvrir WhatsApp
                         </a>
                     </div>
-                </div>
-
-                {/* Carte de localisation MISE À JOUR (cliquable) */}
-                <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
-                    <div className="p-8 text-center">
-                        <h2 className="text-3xl font-bold text-gray-900 mb-4">Notre localisation</h2>
-                        <p className="text-gray-600 text-lg mb-8">Cliquez pour ouvrir l'itinéraire sur la carte !</p>
-                    </div>
-
-                    {/* Le bloc de carte est maintenant un lien (<a>) */}
-                    <a
-                        href={googleMapsUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="block h-96 bg-gray-200 flex items-center justify-center hover:bg-red-50 transition-colors duration-300"
-                    >
-                        <div className="text-center p-4">
-                            {adresseInfo && <adresseInfo.icon className={`h-20 w-20 mx-auto mb-4 ${adresseInfo.color}`} />}
-                            {adresseInfo?.details.length > 0 && (
-                                <>
-                                    <p className="text-red-600 text-xl font-bold">
-                                        {adresseInfo.details[0]}
-                                    </p>
-                                    <p className="text-gray-600 text-lg">
-                                        {adresseInfo.details[1]}
-                                    </p>
-                                    <p className="mt-4 text-sm text-red-500 font-semibold underline">
-                                        Voir sur Google Maps
-                                    </p>
-                                </>
-                            )}
-                        </div>
-                    </a>
                 </div>
             </div>
         </div>
