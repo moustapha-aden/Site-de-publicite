@@ -45,7 +45,7 @@ class SendRealPasswordNotification extends Notification
             ->line('🔐 **Informations de connexion :**')
             ->line('• Email : ' . $notifiable->email)
             ->line('• Mot de passe : ' . $this->realPassword)
-            ->action('Se connecter maintenant', config('app.frontend_url', 'http://localhost:3000') . '/login')
+            ->action('Se connecter maintenant', config('app.frontend_url', 'http://127.0.0.1:8000') . '/login')
             ->line('⚠️ **Sécurité :**')
             ->line('• Gardez ces informations confidentielles')
             ->line('• Ne partagez jamais votre mot de passe')
