@@ -78,7 +78,27 @@ class Vehicule extends Model
             return [];
         }
 
-        return array_map(fn($photo) => Storage::url($photo), $photos);
+        // Retourner des URLs absolues pour que le frontend puisse les charger
+        return array_map(function($photo) {
+            // Si c'est déjà une URL complète (comme picsum.photos), la retourner telle quelle
+            if (filter_var($photo, FILTER_VALIDATE_URL)) {
+                return $photo;
+            }
+            
+            // Utiliser Storage::url() qui gère automatiquement la configuration du filesystem
+            // Cela génère une URL relative, donc on la convertit en absolue
+            $relativeUrl = Storage::url($photo);
+            
+            // Si l'URL est déjà absolue (retournée par Storage::url dans certains cas)
+            if (str_starts_with($relativeUrl, 'http://') || str_starts_with($relativeUrl, 'https://')) {
+                return $relativeUrl;
+            }
+            
+            // Sinon, construire l'URL absolue avec le domaine de l'application
+            // Utiliser request()->getSchemeAndHttpHost() pour obtenir le bon domaine
+            $baseUrl = request()->getSchemeAndHttpHost() ?? config('app.url', url('/'));
+            return rtrim($baseUrl, '/') . '/' . ltrim($relativeUrl, '/');
+        }, $photos);
     }
 
     /** Scopes */

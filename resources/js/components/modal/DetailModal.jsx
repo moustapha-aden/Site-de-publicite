@@ -1,5 +1,6 @@
 import React, { useState } from 'react'; // 👈 Importez useState
 import { X, DollarSign, Car, Settings, Calendar, Fuel, ChevronLeft, ChevronRight, Phone, MessageCircle } from 'lucide-react';
+import { API_URL } from '../../api';
 
 const DetailModal = ({ vehicule, onClose, formatPrice }) => {
     // État pour suivre l'index de la photo affichée
@@ -14,9 +15,23 @@ const DetailModal = ({ vehicule, onClose, formatPrice }) => {
 
     if (!vehicule) return null;
 
+    // Helper pour normaliser les URLs des photos - utiliser l'URL du serveur Laravel
+    const normalizePhotoUrl = (url) => {
+        if (!url) return null;
+        // Si c'est déjà une URL complète, la retourner telle quelle
+        if (url.startsWith('http://') || url.startsWith('https://')) {
+            return url;
+        }
+        // Sinon, construire l'URL complète avec l'URL du serveur Laravel
+        // Extraire l'URL de base depuis API_URL
+        const baseUrl = API_URL.replace('/api', '');
+        return url.startsWith('/') ? `${baseUrl}${url}` : `${baseUrl}/${url}`;
+    };
+
     const photoUrls = vehicule.photo_urls || [];
-    const totalPhotos = photoUrls.length;
-    const currentPhotoUrl = totalPhotos > 0 ? photoUrls[currentPhotoIndex] : null;
+    const normalizedPhotoUrls = photoUrls.map(normalizePhotoUrl).filter(Boolean);
+    const totalPhotos = normalizedPhotoUrls.length;
+    const currentPhotoUrl = totalPhotos > 0 ? normalizedPhotoUrls[currentPhotoIndex] : null;
 
     // --- Fonctions de navigation ---
     const goToPrevious = () => {
@@ -95,7 +110,7 @@ const DetailModal = ({ vehicule, onClose, formatPrice }) => {
 
                                 {/* Indicateur de position */}
                                 <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 flex gap-1">
-                                    {photoUrls.map((_, index) => (
+                                    {normalizedPhotoUrls.map((_, index) => (
                                         <div
                                             key={index}
                                             className={`h-2 w-2 rounded-full cursor-pointer transition-colors ${
