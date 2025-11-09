@@ -1,113 +1,73 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
 import { Phone, Mail, MapPin, Facebook, Twitter, Instagram } from 'lucide-react';
 
 export default function Footer() {
     return (
-        <footer className="bg-gray-800 text-white">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-                    {/* Company Info */}
-                    <div>
-                        <Link to="/" className="text-2xl font-extrabold text-white hover:text-gray-300 transition-colors">
-                            AutoMarket
-                        </Link>
-                        <p className="text-gray-300 mt-4">
-                            Votre partenaire de confiance pour l'achat, la vente et la location de véhicules.
-                        </p>
-                        <div className="flex space-x-4 mt-4">
-                            <a href="#" className="text-gray-400 hover:text-white transition-colors">
-                                <Facebook className="h-5 w-5" />
-                            </a>
-                            <a href="#" className="text-gray-400 hover:text-white transition-colors">
-                                <Twitter className="h-5 w-5" />
-                            </a>
-                            <a href="#" className="text-gray-400 hover:text-white transition-colors">
-                                <Instagram className="h-5 w-5" />
-                            </a>
+            <footer className="bg-black border-t-2 border-white py-16">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+                        <div>
+                            <h3 className="text-2xl font-bold mb-4 text-white">
+                                AutoMarket
+                            </h3>
+                            <p className="text-white/70 leading-relaxed mb-6 text-sm">
+                                Votre plateforme de confiance pour véhicules, parcelles et locations à Djibouti.
+                            </p>
+                            <div className="flex gap-3">
+                                <a href="#" className="bg-white/10 hover:bg-white/20 border border-white/20 w-10 h-10 flex items-center justify-center transition-colors">
+                                    <Facebook className="h-5 w-5 text-white" />
+                                </a>
+                                <a href="#" className="bg-white/10 hover:bg-white/20 border border-white/20 w-10 h-10 flex items-center justify-center transition-colors">
+                                    <Instagram className="h-5 w-5 text-white" />
+                                </a>
+                                <a href="#" className="bg-white/10 hover:bg-white/20 border border-white/20 w-10 h-10 flex items-center justify-center transition-colors">
+                                    <Twitter className="h-5 w-5 text-white" />
+                                </a>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h4 className="font-bold mb-4 text-lg text-white">Services</h4>
+                            <ul className="space-y-3 text-white/70">
+                                <li><a href="#" className="hover:text-white transition-colors text-sm">Véhicules</a></li>
+                                <li><a href="#" className="hover:text-white transition-colors text-sm">Parcelles</a></li>
+                                <li><a href="#" className="hover:text-white transition-colors text-sm">Locations</a></li>
+                                <li><a href="#" className="hover:text-white transition-colors text-sm">Financement</a></li>
+                            </ul>
+                        </div>
+
+                        <div>
+                            <h4 className="font-bold mb-4 text-lg text-white">À Propos</h4>
+                            <ul className="space-y-3 text-white/70">
+                                <li><a href="#" className="hover:text-white transition-colors text-sm">Qui sommes-nous</a></li>
+                                <li><a href="#" className="hover:text-white transition-colors text-sm">Notre équipe</a></li>
+                                <li><a href="#" className="hover:text-white transition-colors text-sm">Témoignages</a></li>
+                                <li><a href="#" className="hover:text-white transition-colors text-sm">Blog</a></li>
+                            </ul>
+                        </div>
+
+                        <div>
+                            <h4 className="font-bold mb-4 text-lg text-white">Contact</h4>
+                            <ul className="space-y-3 text-white/70">
+                                <li className="flex items-center gap-2 text-sm">
+                                    <Phone className="h-4 w-4 flex-shrink-0 text-white" />
+                                    <span>+253 XX XX XX XX</span>
+                                </li>
+                                <li className="flex items-center gap-2 text-sm">
+                                    <Mail className="h-4 w-4 flex-shrink-0 text-white" />
+                                    <span>contact@automarket.dj</span>
+                                </li>
+                                <li className="flex items-start gap-2 text-sm">
+                                    <MapPin className="h-4 w-4 mt-1 flex-shrink-0 text-white" />
+                                    <span>Djibouti, République de Djibouti</span>
+                                </li>
+                            </ul>
                         </div>
                     </div>
 
-                    {/* Quick Links */}
-                    <div>
-                        <h4 className="text-lg font-semibold mb-4">Liens rapides</h4>
-                        <ul className="space-y-2">
-                            <li>
-                                <Link to="/" className="text-gray-300 hover:text-white transition-colors">
-                                    Accueil
-                                </Link>
-                            </li>
-                            <li>
-                                <Link to="/vehicles" className="text-gray-300 hover:text-white transition-colors">
-                                    Véhicules
-                                </Link>
-                            </li>
-                            <li>
-                                <Link to="/properties" className="text-gray-300 hover:text-white transition-colors">
-                                    Parcelles à Vendre
-                                </Link>
-                            </li>
-                            <li>
-                                <Link to="/rentals" className="text-gray-300 hover:text-white transition-colors">
-                                    Locations
-                                </Link>
-                            </li>
-                        </ul>
-                    </div>
-
-                    {/* Services */}
-                    <div>
-                        <h4 className="text-lg font-semibold mb-4">Services</h4>
-                        <ul className="space-y-2">
-                            <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Vente de véhicules</a></li>
-                            <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Achat de véhicules</a></li>
-                            <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Location courte durée</a></li>
-                            <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Location longue durée</a></li>
-                            <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Estimation gratuite</a></li>
-                        </ul>
-                    </div>
-
-                    {/* Contact */}
-                    <div>
-                        <h4 className="text-lg font-semibold mb-4">Contact</h4>
-                        <ul className="space-y-3">
-                            <li className="flex items-center gap-2 text-gray-300">
-                                <Phone className="h-4 w-4" />
-                                01 23 45 67 89
-                            </li>
-                            <li className="flex items-center gap-2 text-gray-300">
-                                <Mail className="h-4 w-4" />
-                                contact@automarket.fr
-                            </li>
-                            <li className="flex items-center gap-2 text-gray-300">
-                                <MapPin className="h-4 w-4" />
-                                123 Rue de la Paix<br />
-                                75001 Paris, France
-                            </li>
-                        </ul>
+                    <div className="border-t border-white/20 pt-8 text-center text-white/70 text-sm">
+                        <p>&copy; 2024 AutoMarket. Tous droits réservés.</p>
                     </div>
                 </div>
-
-                {/* Bottom Section */}
-                <div className="border-t border-gray-700 mt-12 pt-8">
-                    <div className="flex flex-col md:flex-row justify-between items-center">
-                        <p className="text-gray-300 text-sm">
-                            © 2024 AutoMarket. Tous droits réservés.
-                        </p>
-                        <div className="flex space-x-6 mt-4 md:mt-0">
-                            <a href="#" className="text-gray-300 hover:text-white text-sm transition-colors">
-                                Mentions légales
-                            </a>
-                            <a href="#" className="text-gray-300 hover:text-white text-sm transition-colors">
-                                Politique de confidentialité
-                            </a>
-                            <a href="#" className="text-gray-300 hover:text-white text-sm transition-colors">
-                                CGV
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </footer>
+            </footer>
     );
 }
